@@ -1,10 +1,14 @@
 defmodule HTTPotion do
-  defrecord Response, status: nil, status_code: nil, body: nil, headers: []
+  defrecord Response, status_code: nil, body: nil, headers: []
   defexception HTTPError, message: nil
+
+  def start do
+    :ibrowse.start
+  end
 
   def process_response(status_code, headers, body) do
     Response.new(
-      status_code: elem :string.to_integer(status_code), 1,
+      status_code: elem(:string.to_integer(status_code), 1),
       headers: :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_binary(k)), to_binary(v) } end),
       body: to_binary(body)
     )
@@ -17,8 +21,10 @@ defmodule HTTPotion do
     case :ibrowse.send_req(to_char_list(url), headers, method, body, [], timeout) do
       {:ok, status_code, headers, body} ->
         process_response status_code, headers, body
+      {:error, {:conn_failed, {:error, reason}}} ->
+        raise HTTPError.new message: to_binary(reason)
       {:error, reason} ->
-        raise HTTPError.new message: reason
+        raise HTTPError.new message: to_binary(reason)
     end
   end
 
