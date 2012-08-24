@@ -9,4 +9,10 @@ defmodule HTTPotionTest do
     assert resp.headers[:Connection] == "Keep-Alive"
   end
 
+  test "fail" do
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      HTTPotion.get "http://localhost:1"
+    end
+  end
+
 end
