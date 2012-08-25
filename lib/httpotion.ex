@@ -41,6 +41,8 @@ defmodule HTTPotion.Base do
         * options - orddict of options
       Options:
         * timeout - timeout in ms, integer
+      Returns HTTPotion.Response if successful.
+      Raises  HTTPotion.HTTPError if failed.
       """
       def request(method, url, body // "", headers // [], options // []) do
         url = process_url to_char_list(url)
