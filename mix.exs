@@ -16,8 +16,7 @@ defmodule HTTPotion.Mixfile do
   # { :foobar, "0.1", git: "https://github.com/elixir-lang/foobar.git" }
   defp deps do
     [
-      {:ibrowse, "4.0.1", git: "https://github.com/cmullaparthi/ibrowse.git"},
-      {:jsx, "1.3.1", git: "https://github.com/talentdeficit/jsx.git"}
+      {:ibrowse, "4.0.1", git: "https://github.com/cmullaparthi/ibrowse.git"}
     ]
   end
 end
