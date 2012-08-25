@@ -6,6 +6,7 @@ Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httpa
 ## Usage
 
 ```elixir
+iex> HTTPotion.start
 iex> HTTPotion.get "http://localhost:4000"
 HTTPotion.Response[body: "...", headers: [{:Connection,"Keep-Alive"}...], status_code: 200]
 
@@ -28,6 +29,7 @@ defmodule GitHub do
   end
 end
 
+iex> GitHub.start
 iex> GitHub.get("users/myfreeweb").body[:public_repos]
 37
 ```
