@@ -12,3 +12,22 @@ HTTPotion.Response[body: "...", headers: [{:Connection,"Keep-Alive"}...], status
 iex> HTTPotion.get "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
+
+You can also extend it to make cool API clients or something (this example uses [jsx](https://github.com/talentdeficit/jsx) for JSON):
+
+```elixir
+defmodule GitHub do
+  use HTTPotion.Base
+  def process_url(url) do
+    :string.concat 'https://api.github.com/', url
+  end
+  def process_response_body(body) do
+    json = :jsx.decode to_binary(body)
+    json2 = Enum.map json, fn ({k, v}) -> { binary_to_atom(k), v } end
+    :orddict.from_list json2
+  end
+end
+
+iex> GitHub.get("users/myfreeweb").body[:public_repos]
+37
+```

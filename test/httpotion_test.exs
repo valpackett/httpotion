@@ -15,4 +15,18 @@ defmodule HTTPotionTest do
     end
   end
 
+  test "extension" do
+    defmodule TestClient do
+      use HTTPotion.Base
+      def process_url(url) do
+        :string.concat 'https://', url
+      end
+    end
+
+    # you don't have https on localhost, eh?
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      TestClient.get "localhost"
+    end
+  end
+
 end
