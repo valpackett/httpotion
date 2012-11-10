@@ -1,7 +1,7 @@
 # HTTPotion
 
 HTTP client for Elixir, based on [ibrowse](https://github.com/cmullaparthi/ibrowse).
-Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httparty) and [HTTPie](https://github.com/jkbr/httpie).
+Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httparty), [HTTPretty](https://github.com/gabrielfalcao/HTTPretty) and [HTTPie](https://github.com/jkbr/httpie).
 
 ## Usage
 
