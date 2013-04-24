@@ -4,9 +4,9 @@ defmodule HTTPotionTest do
   use ExUnit.Case
 
   test "get" do
-    resp = HTTPotion.get "http://localhost"
+    resp = HTTPotion.get "http://floatboth.com"
     assert resp.status_code == 200
-    assert resp.headers[:Pragma] == "no-cache"
+    assert resp.headers[:Connection] == "keep-alive"
     assert is_binary(resp.body)
   end
 
