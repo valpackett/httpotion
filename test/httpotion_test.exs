@@ -4,7 +4,7 @@ defmodule HTTPotionTest do
   use ExUnit.Case
 
   test "get" do
-    resp = HTTPotion.get "http://localhost:4000"
+    resp = HTTPotion.get "http://localhost"
     assert resp.status_code == 200
     assert resp.headers[:Connection] == "Keep-Alive"
     assert is_binary(resp.body)
