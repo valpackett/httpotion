@@ -6,7 +6,7 @@ defmodule HTTPotionTest do
   test "get" do
     resp = HTTPotion.get "http://localhost"
     assert resp.status_code == 200
-    assert resp.headers[:Connection] == "Keep-Alive"
+    assert resp.headers[:Pragma] == "no-cache"
     assert is_binary(resp.body)
   end
 

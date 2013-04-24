@@ -25,7 +25,7 @@ defmodule HTTPotion.Base do
 
       def process_response(status_code, headers, body) do
         HTTPotion.Response.new(
-          status_code: elem(:string.to_integer(status_code), 1),
+          status_code: elem(:string.to_integer(status_code), 0),
           headers: :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_binary(k)), to_binary(v) } end),
           body: process_response_body(body)
         )
