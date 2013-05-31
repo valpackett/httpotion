@@ -1,0 +1,8 @@
+language: erlang
+script: mix test
+otp_release:
+  - R16B
+before_install:
+  - mkdir -p vendor/elixir
+  - wget -q http://dl.dropbox.com/u/4934685/elixir/v0.9.0.zip && unzip -qq v0.9.0.zip -d vendor/elixir
+  - export PATH="$PATH:$PWD/vendor/elixir/bin"
