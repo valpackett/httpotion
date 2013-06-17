@@ -63,6 +63,7 @@ defmodule HTTPotion.Base do
       def put(url, body, headers // [], options // []), do: request(:get, url, body, headers, options)
       def head(url, headers // [], options // []), do: request(:head, url, "", headers, options)
       def post(url, body, headers // [], options // []), do: request(:post, url, body, headers, options)
+      def patch(url, body, headers // [], options // []), do: request(:patch, url, body, headers, options)
       def delete(url, headers // [], options // []), do: request(:delete, url, "", headers, options)
       def options(url, headers // [], options // []), do: request(:options, url, "", headers, options)
 
