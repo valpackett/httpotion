@@ -30,4 +30,22 @@ defmodule HTTPotionTest do
     end
   end
 
+  test "async" do
+    HTTPotion.AsyncResponse[id: resp] = HTTPotion.get "http://floatboth.com", [], [stream_to: self]
+    receive do
+      HTTPotion.AsyncHeaders[id: id, status_code: status_code, headers: headers] ->
+        assert id == resp
+        assert status_code == 200
+        assert headers[:Connection] == "keep-alive"
+    end
+    receive do
+      HTTPotion.AsyncChunk[id: id, chunk: chunk] ->
+        assert id == resp
+    end
+    receive do
+      HTTPotion.AsyncEnd[id: id] ->
+        assert id == resp
+    end
+  end
+
 end

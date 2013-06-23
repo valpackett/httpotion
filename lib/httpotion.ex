@@ -23,12 +23,36 @@ defmodule HTTPotion.Base do
         to_binary body
       end
 
-      def process_response(status_code, headers, body) do
-        HTTPotion.Response.new(
-          status_code: elem(:string.to_integer(status_code), 0),
-          headers: :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_binary(k)), to_binary(v) } end),
-          body: process_response_body(body)
-        )
+      def process_response_chunk(chunk) do
+        to_binary chunk
+      end
+
+      def process_headers(headers) do
+        :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_binary(k)), to_binary(v) } end)
+      end
+
+      def process_status_code(status_code) do
+        elem(:string.to_integer(status_code), 0)
+      end
+
+      def transformer(target) do
+        receive do
+          {:ibrowse_async_headers, id, status_code, headers} ->
+            target <- HTTPotion.AsyncHeaders[
+              id: id,
+              status_code: process_status_code(status_code),
+              headers: process_headers(headers)
+            ]
+            transformer(target)
+          {:ibrowse_async_response, id, chunk} ->
+            target <- HTTPotion.AsyncChunk[
+              id: id,
+              chunk: process_response_chunk(chunk)
+            ]
+            transformer(target)
+          {:ibrowse_async_response_end, id} ->
+            target <- HTTPotion.AsyncEnd[id: id]
+        end
       end
 
       @doc """
@@ -47,15 +71,27 @@ defmodule HTTPotion.Base do
       def request(method, url, body // "", headers // [], options // []) do
         url = process_url to_char_list(url)
         timeout = Keyword.get options, :timeout, 5000
+        stream_to = Keyword.get options, :stream_to
+        ib_options = []
+        if stream_to, do:
+          ib_options = [{:stream_to, spawn(__MODULE__, :transformer, [stream_to])}]
         headers = Enum.map headers, fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
         body = process_request_body body
-        case :ibrowse.send_req(url, headers, method, body, [], timeout) do
+        case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do
           {:ok, status_code, headers, body} ->
-            process_response status_code, headers, body
+            HTTPotion.Response[
+              status_code: process_status_code(status_code),
+              headers: process_headers(headers),
+              body: process_response_body(body)
+            ]
+          {:ibrowse_req_id, id} ->
+            HTTPotion.AsyncResponse[id: id]
           {:error, {:conn_failed, {:error, reason}}} ->
-            raise HTTPotion.HTTPError.new message: to_binary(reason)
+            raise HTTPotion.HTTPError[message: to_binary(reason)]
+          {:error, :conn_failed} ->
+            raise HTTPotion.HTTPError[message: "conn_failed"]
           {:error, reason} ->
-            raise HTTPotion.HTTPError.new message: to_binary(reason)
+            raise HTTPotion.HTTPError[message: to_binary(reason)]
         end
       end
 
@@ -78,6 +114,10 @@ defmodule HTTPotion do
   """
 
   defrecord Response, status_code: nil, body: nil, headers: []
+  defrecord AsyncResponse, id: nil
+  defrecord AsyncHeaders, id: nil, status_code: nil, headers: []
+  defrecord AsyncChunk, id: nil, chunk: nil
+  defrecord AsyncEnd, id: nil
   defexception HTTPError, message: nil
 
   use HTTPotion.Base

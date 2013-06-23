@@ -33,3 +33,14 @@ iex> GitHub.start
 iex> GitHub.get("users/myfreeweb").body[:public_repos]
 37
 ```
+
+And now with async!
+
+```elixir
+iex> HTTPotion.get "http://floatboth.com", [], [stream_to: self]
+HTTPotion.AsyncResponse[id: {1372,8757,656584}]
+iex> flush()
+HTTPotion.AsyncHeaders[id: {1372,8757,656584}, status_code: 200, headers: ["keep-alive", "Content-Type": "text/html;charset=utf-8", Date: "Sun, 23 Jun 2013 17:32:32 GMT", Server: "cloudflare-nginx", "Transfer-Encoding": "chunked"]]
+HTTPotion.AsyncChunk[id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n..."]
+HTTPotion.AsyncEnd[id: {1372,8757,656584}]
+```
