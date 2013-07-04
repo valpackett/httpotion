@@ -39,7 +39,7 @@ defmodule HTTPotionTest do
         assert headers[:Connection] == "keep-alive"
     end
     receive do
-      HTTPotion.AsyncChunk[id: id, chunk: chunk] ->
+      HTTPotion.AsyncChunk[id: id, chunk: _chunk] ->
         assert id == resp
     end
     receive do
