@@ -96,7 +96,7 @@ defmodule HTTPotion.Base do
       end
 
       def get(url, headers // [], options // []), do: request(:get, url, "", headers, options)
-      def put(url, body, headers // [], options // []), do: request(:get, url, body, headers, options)
+      def put(url, body, headers // [], options // []), do: request(:put, url, body, headers, options)
       def head(url, headers // [], options // []), do: request(:head, url, "", headers, options)
       def post(url, body, headers // [], options // []), do: request(:post, url, body, headers, options)
       def patch(url, body, headers // [], options // []), do: request(:patch, url, body, headers, options)
