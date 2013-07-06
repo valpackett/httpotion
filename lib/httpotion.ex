@@ -7,8 +7,6 @@ defmodule HTTPotion.Base do
       end
 
       def process_url(url) do
-        url = to_binary(url)
-
         unless url =~ %r/\Ahttps?:\/\// do
           "http://" <> url
         else
@@ -70,7 +68,7 @@ defmodule HTTPotion.Base do
       Raises  HTTPotion.HTTPError if failed.
       """
       def request(method, url, body // "", headers // [], options // []) do
-        url = to_char_list process_url(url)
+        url = to_char_list process_url(to_binary(url))
         timeout = Keyword.get options, :timeout, 5000
         stream_to = Keyword.get options, :stream_to
         ib_options = []

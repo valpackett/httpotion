@@ -20,7 +20,7 @@ You can also extend it to make cool API clients or something (this example uses 
 defmodule GitHub do
   use HTTPotion.Base
   def process_url(url) do
-    :string.concat 'https://api.github.com/', url
+    "https://api.github.com" <> url
   end
   def process_response_body(body) do
     json = :jsx.decode to_binary(body)
