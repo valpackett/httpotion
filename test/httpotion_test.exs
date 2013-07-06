@@ -2,15 +2,45 @@ Code.require_file "../test_helper.exs", __FILE__
 
 defmodule HTTPotionTest do
   use ExUnit.Case
+  import ExUnit.CaptureIO
 
   test "get" do
-    resp = HTTPotion.get "http://floatboth.com"
-    assert resp.status_code == 200
-    assert resp.headers[:Connection] == "keep-alive"
-    assert is_binary(resp.body)
+    assert_response HTTPotion.get("http://httpbin.org/get")
   end
 
-  test "fail" do
+  test "head" do
+    assert_response HTTPotion.head("http://httpbin.org/get"), fn(response) ->
+      assert response.body == ""
+    end
+  end
+
+  test "post" do
+    assert_response HTTPotion.post("http://httpbin.org/post", "test")
+  end
+
+  test "put" do
+    assert_response HTTPotion.put("http://httpbin.org/put", "test")
+  end
+
+  test "patch" do
+    assert_response HTTPotion.patch("http://httpbin.org/patch", "test")
+  end
+
+  test "delete" do
+    assert_response HTTPotion.delete("http://httpbin.org/delete")
+  end
+
+  test "options" do
+    assert_response HTTPotion.options("http://httpbin.org/get"), fn(response) ->
+      assert response.headers[:Allow] == "HEAD, OPTIONS, GET"
+    end
+  end
+
+  test "https scheme" do
+    assert_response HTTPotion.head("https://httpbin.org/get")
+  end
+
+  test "exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
       HTTPotion.get "http://localhost:1"
     end
@@ -19,33 +49,30 @@ defmodule HTTPotionTest do
   test "extension" do
     defmodule TestClient do
       use HTTPotion.Base
+
       def process_url(url) do
-        :string.concat 'https://', url
+        IO.write "ok"
+
+        super(url)
       end
     end
 
-    # you don't have https on localhost, eh?
-    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
-      TestClient.get "localhost"
-    end
+    assert capture_io(fn -> TestClient.head("http://httpbin.org/get") end) == "ok"
   end
 
-  test "async" do
-    HTTPotion.AsyncResponse[id: resp] = HTTPotion.get "http://floatboth.com", [], [stream_to: self]
-    receive do
-      HTTPotion.AsyncHeaders[id: id, status_code: status_code, headers: headers] ->
-        assert id == resp
-        assert status_code == 200
-        assert headers[:Connection] == "keep-alive"
-    end
-    receive do
-      HTTPotion.AsyncChunk[id: id, chunk: chunk] ->
-        assert id == resp
-    end
-    receive do
-      HTTPotion.AsyncEnd[id: id] ->
-        assert id == resp
-    end
+  test "asynchronous request" do
+    HTTPotion.AsyncResponse[id: id] = HTTPotion.get "http://httpbin.org/get", [], [stream_to: self]
+
+    assert_receive HTTPotion.AsyncHeaders[id: ^id, status_code: 200, headers: _headers], 1_000
+    assert_receive HTTPotion.AsyncChunk[id: ^id, chunk: _chunk], 1_000
+    assert_receive HTTPotion.AsyncEnd[id: ^id], 1_000
   end
 
+  def assert_response(response, function // nil) do
+    assert response.status_code == 200
+    assert response.headers[:Connection] == "keep-alive"
+    assert is_binary(response.body)
+
+    unless function == nil, do: function.(response)
+  end
 end

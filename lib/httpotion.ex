@@ -1,7 +1,6 @@
 defmodule HTTPotion.Base do
   defmacro __using__(_) do
     quote do
-
       def start do
         :ibrowse.start
         :ssl.start
@@ -95,13 +94,13 @@ defmodule HTTPotion.Base do
         end
       end
 
-      def get(url, headers // [], options // []), do: request(:get, url, "", headers, options)
-      def put(url, body, headers // [], options // []), do: request(:get, url, body, headers, options)
-      def head(url, headers // [], options // []), do: request(:head, url, "", headers, options)
-      def post(url, body, headers // [], options // []), do: request(:post, url, body, headers, options)
+      def get(url, headers // [], options // []),         do: request(:get, url, "", headers, options)
+      def put(url, body, headers // [], options // []),   do: request(:put, url, body, headers, options)
+      def head(url, headers // [], options // []),        do: request(:head, url, "", headers, options)
+      def post(url, body, headers // [], options // []),  do: request(:post, url, body, headers, options)
       def patch(url, body, headers // [], options // []), do: request(:patch, url, body, headers, options)
-      def delete(url, headers // [], options // []), do: request(:delete, url, "", headers, options)
-      def options(url, headers // [], options // []), do: request(:options, url, "", headers, options)
+      def delete(url, headers // [], options // []),      do: request(:delete, url, "", headers, options)
+      def options(url, headers // [], options // []),     do: request(:options, url, "", headers, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end
@@ -118,8 +117,8 @@ defmodule HTTPotion do
   defrecord AsyncHeaders, id: nil, status_code: nil, headers: []
   defrecord AsyncChunk, id: nil, chunk: nil
   defrecord AsyncEnd, id: nil
+
   defexception HTTPError, message: nil
 
   use HTTPotion.Base
-
 end
