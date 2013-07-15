@@ -71,9 +71,9 @@ defmodule HTTPotion.Base do
         url = to_char_list process_url(to_binary(url))
         timeout = Keyword.get options, :timeout, 5000
         stream_to = Keyword.get options, :stream_to
-        ib_options = []
+        ib_options = Keyword.get options, :ibrowse, []
         if stream_to, do:
-          ib_options = [{:stream_to, spawn(__MODULE__, :transformer, [stream_to])}]
+          ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
         headers = Enum.map headers, fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
         body = process_request_body body
         case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do

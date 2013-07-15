@@ -36,6 +36,11 @@ defmodule HTTPotionTest do
     end
   end
 
+  test "ibrowse option" do
+    ibrowse = [basic_auth: {'foo', 'bar'}]
+    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse ])
+  end
+
   test "explicit http scheme" do
     assert_response HTTPotion.head("http://httpbin.org/get")
   end
@@ -69,7 +74,8 @@ defmodule HTTPotionTest do
   end
 
   test "asynchronous request" do
-    HTTPotion.AsyncResponse[id: id] = HTTPotion.get "httpbin.org/get", [], [stream_to: self]
+    ibrowse = [basic_auth: {'foo', 'bar'}]
+    HTTPotion.AsyncResponse[id: id] = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse]
 
     assert_receive HTTPotion.AsyncHeaders[id: ^id, status_code: 200, headers: _headers], 1_000
     assert_receive HTTPotion.AsyncChunk[id: ^id, chunk: _chunk], 1_000
