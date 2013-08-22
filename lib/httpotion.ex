@@ -20,13 +20,13 @@ defmodule HTTPotion.Base do
       end
 
       def process_response_body(body) do
-        to_binary body
+        to_string body
       end
 
       def process_response(status_code, headers, body) do
         HTTPotion.Response.new(
           status_code: elem(:string.to_integer(status_code), 0),
-          headers: :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_binary(k)), to_binary(v) } end),
+          headers: :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_string(k)), to_string(v) } end),
           body: process_response_body(body)
         )
       end
@@ -53,9 +53,9 @@ defmodule HTTPotion.Base do
           {:ok, status_code, headers, body} ->
             process_response status_code, headers, body
           {:error, {:conn_failed, {:error, reason}}} ->
-            raise HTTPotion.HTTPError.new message: to_binary(reason)
+            raise HTTPotion.HTTPError.new message: to_string(reason)
           {:error, reason} ->
-            raise HTTPotion.HTTPError.new message: to_binary(reason)
+            raise HTTPotion.HTTPError.new message: to_string(reason)
         end
       end
 
