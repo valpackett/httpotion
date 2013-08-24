@@ -32,7 +32,8 @@ defmodule HTTPotionTest do
 
   test "options" do
     assert_response HTTPotion.options("httpbin.org/get"), fn(response) ->
-      assert response.headers[:Allow] == "HEAD, OPTIONS, GET"
+      assert response.headers[:"Content-Length"] == "0"
+      assert is_binary(response.headers[:Allow])
     end
   end
 
