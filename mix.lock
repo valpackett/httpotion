@@ -1,1 +1,1 @@
-[ "ibrowse": {:git,"https://github.com/cmullaparthi/ibrowse.git","af5eebd9f5d828f893a94ce1767f29d15f67547c",[]} ]
+[ "ibrowse": {:git, "git://github.com/cmullaparthi/ibrowse.git", "af5eebd9f5d828f893a94ce1767f29d15f67547c", []} ]

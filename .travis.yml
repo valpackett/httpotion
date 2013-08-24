@@ -5,6 +5,6 @@ otp_release:
   - R16B
 before_install:
   - mkdir -p vendor/elixir
-  - wget -q http://dl.dropbox.com/u/4934685/elixir/v0.9.0.zip && unzip -qq v0.9.0.zip -d vendor/elixir
+  - wget -q https://github.com/elixir-lang/elixir/releases/download/v0.10.2/v0.10.2.zip && unzip -qq v0.10.2.zip -d vendor/elixir
   - export PATH="$PATH:$PWD/vendor/elixir/bin"
   - export MIX_ENV=test
