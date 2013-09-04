@@ -9,7 +9,7 @@ defmodule HTTPotion.Mixfile do
   end
 
   def application do
-    [applications: [:ibrowse, :ssl]]
+    [applications: [:ssl, :ibrowse]]
   end
 
   defp deps do

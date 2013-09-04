@@ -2,8 +2,7 @@ defmodule HTTPotion.Base do
   defmacro __using__(_) do
     quote do
       def start do
-        :ibrowse.start
-        :ssl.start
+        Enum.each [:ssl, :ibrowse], Application.Behaviour.start(&1)
       end
 
       def process_url(url) do
