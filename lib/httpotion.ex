@@ -16,15 +16,15 @@ defmodule HTTPotion.Base do
       def process_request_body(body), do: body
 
       def process_response_body(body) do
-        to_binary body
+        to_string body
       end
 
       def process_response_chunk(chunk) do
-        to_binary chunk
+        to_string chunk
       end
 
       def process_headers(headers) do
-        :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_binary(k)), to_binary(v) } end)
+        :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_string(k)), to_string(v) } end)
       end
 
       def process_status_code(status_code) do
@@ -65,7 +65,7 @@ defmodule HTTPotion.Base do
       Raises  HTTPotion.HTTPError if failed.
       """
       def request(method, url, body // "", headers // [], options // []) do
-        url = to_char_list process_url(to_binary(url))
+        url = to_char_list process_url(to_string(url))
         timeout = Keyword.get options, :timeout, 5000
         stream_to = Keyword.get options, :stream_to
         ib_options = Keyword.get options, :ibrowse, []
@@ -83,11 +83,11 @@ defmodule HTTPotion.Base do
           {:ibrowse_req_id, id} ->
             HTTPotion.AsyncResponse[id: id]
           {:error, {:conn_failed, {:error, reason}}} ->
-            raise HTTPotion.HTTPError[message: to_binary(reason)]
+            raise HTTPotion.HTTPError[message: to_string(reason)]
           {:error, :conn_failed} ->
             raise HTTPotion.HTTPError[message: "conn_failed"]
           {:error, reason} ->
-            raise HTTPotion.HTTPError[message: to_binary(reason)]
+            raise HTTPotion.HTTPError[message: to_string(reason)]
         end
       end
 
