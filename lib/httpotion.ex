@@ -13,9 +13,7 @@ defmodule HTTPotion.Base do
         end
       end
 
-      def process_request_body(body) do
-        to_char_list body
-      end
+      def process_request_body(body), do: body
 
       def process_response_body(body) do
         to_binary body
