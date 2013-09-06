@@ -3,6 +3,7 @@ Code.require_file "../test_helper.exs", __FILE__
 defmodule HTTPotionTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
+  import PathHelpers
 
   test "get" do
     assert_response HTTPotion.get("httpbin.org/get")
@@ -14,8 +15,14 @@ defmodule HTTPotionTest do
     end
   end
 
-  test "post" do
-    assert_response HTTPotion.post("httpbin.org/post", "test")
+  test "post charlist body" do
+    assert_response HTTPotion.post("httpbin.org/post", 'test')
+  end
+
+  test "post binary body" do
+    { :ok, file } = File.read(fixture_path("image.png"))
+
+    assert_response HTTPotion.post("httpbin.org/post", file)
   end
 
   test "put" do
