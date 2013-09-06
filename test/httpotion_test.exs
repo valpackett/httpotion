@@ -6,7 +6,9 @@ defmodule HTTPotionTest do
   import PathHelpers
 
   test "get" do
-    assert_response HTTPotion.get("httpbin.org/get")
+    assert_response HTTPotion.get("httpbin.org"), fn(response) ->
+      assert match?(<<60, 33, 68, 79, _ :: binary>>, response.body)
+    end
   end
 
   test "head" do

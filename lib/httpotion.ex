@@ -16,7 +16,7 @@ defmodule HTTPotion.Base do
       def process_request_body(body), do: body
 
       def process_response_body(body) do
-        to_string body
+        iolist_to_binary body
       end
 
       def process_response_chunk(chunk) do
