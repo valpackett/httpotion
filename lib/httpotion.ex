@@ -20,11 +20,13 @@ defmodule HTTPotion.Base do
       end
 
       def process_response_chunk(chunk) do
-        to_string chunk
+        iolist_to_binary chunk
       end
 
       def process_headers(headers) do
-        :orddict.from_list(Enum.map headers, fn ({k, v}) -> { binary_to_atom(to_string(k)), to_string(v) } end)
+        Enum.map(headers, fn ({k, v}) ->
+          { binary_to_atom(to_string(k)), to_string(v) }
+        end) |> :orddict.from_list
       end
 
       def process_status_code(status_code) do
