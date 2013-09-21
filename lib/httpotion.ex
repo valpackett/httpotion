@@ -28,7 +28,7 @@ defmodule HTTPotion.Base do
           key = binary_to_atom(to_string(k))
           value = to_string(v)
 
-          Dict.update acc, key, value, fn l -> [value | List.wrap(l)] end
+          Dict.update acc, key, value, &[value | List.wrap(&1)]
         end) |> Enum.sort
       end
 
