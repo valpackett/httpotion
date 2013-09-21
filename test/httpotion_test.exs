@@ -46,6 +46,12 @@ defmodule HTTPotionTest do
     end
   end
 
+  test "headers" do
+    assert_response HTTPotion.head("http://httpbin.org/cookies/set?first=foo&second=bar"), fn(response) ->
+      assert_list response.headers[:"Set-Cookie"], ["first=foo; Path=/", "second=bar; Path=/"]
+    end
+  end
+
   test "ibrowse option" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse ])
@@ -93,10 +99,14 @@ defmodule HTTPotionTest do
   end
 
   defp assert_response(response, function // nil) do
-    assert response.success?
+    assert response.success?(:extra)
     assert response.headers[:Connection] == "keep-alive"
     assert is_binary(response.body)
 
     unless function == nil, do: function.(response)
+  end
+
+  defp assert_list(value, expected) do
+    Enum.sort(value) == expected
   end
 end

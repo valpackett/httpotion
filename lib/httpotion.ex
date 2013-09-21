@@ -24,9 +24,12 @@ defmodule HTTPotion.Base do
       end
 
       def process_headers(headers) do
-        Enum.map(headers, fn ({k, v}) ->
-          { binary_to_atom(to_string(k)), to_string(v) }
-        end) |> :orddict.from_list
+        Enum.reduce(headers, [], fn { k, v }, acc ->
+          key = binary_to_atom(to_string(k))
+          value = to_string(v)
+
+          Dict.update acc, key, value, fn l -> [value | List.wrap(l)] end
+        end) |> Enum.sort
       end
 
       def process_status_code(status_code) do
@@ -114,6 +117,10 @@ defmodule HTTPotion do
   defrecord Response, status_code: nil, body: nil, headers: [] do
     def success?(__MODULE__[status_code: code]) do
       code in 200..299
+    end
+
+    def success?(:extra, __MODULE__[status_code: code] = response) do
+      success?(response) or code in [302, 304]
     end
   end
 
