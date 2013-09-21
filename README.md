@@ -7,8 +7,10 @@ Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httpa
 
 ```elixir
 iex> HTTPotion.start
-iex> HTTPotion.get "http://localhost:4000"
+iex> response = HTTPotion.get "http://localhost:4000"
 HTTPotion.Response[body: "...", headers: [{:Connection,"Keep-Alive"}...], status_code: 200]
+iex> response.success?
+true
 
 iex> HTTPotion.get "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused

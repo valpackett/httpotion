@@ -111,7 +111,12 @@ defmodule HTTPotion do
   The HTTP client for Elixir.
   """
 
-  defrecord Response, status_code: nil, body: nil, headers: []
+  defrecord Response, status_code: nil, body: nil, headers: [] do
+    def success?(__MODULE__[status_code: code]) do
+      code in 200..299
+    end
+  end
+
   defrecord AsyncResponse, id: nil
   defrecord AsyncHeaders, id: nil, status_code: nil, headers: []
   defrecord AsyncChunk, id: nil, chunk: nil
