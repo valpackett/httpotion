@@ -22,7 +22,7 @@ You can also extend it to make cool API clients or something (this example uses 
 defmodule GitHub do
   use HTTPotion.Base
   def process_url(url) do
-    "https://api.github.com" <> url
+    "https://api.github.com/" <> url
   end
   def process_response_body(body) do
     json = :jsx.decode to_string(body)
@@ -32,7 +32,7 @@ defmodule GitHub do
 end
 
 iex> GitHub.start
-iex> GitHub.get("users/myfreeweb").body[:public_repos]
+iex> GitHub.get("users/myfreeweb", ["User-Agent": "httpotion-example"]).body[:public_repos]
 37
 ```
 
