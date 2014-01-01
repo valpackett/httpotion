@@ -15,6 +15,8 @@ defmodule HTTPotion.Base do
 
       def process_request_body(body), do: body
 
+      def process_request_headers(headers), do: headers
+
       def process_response_body(body) do
         iolist_to_binary body
       end
@@ -23,7 +25,7 @@ defmodule HTTPotion.Base do
         iolist_to_binary chunk
       end
 
-      def process_headers(headers) do
+      def process_response_headers(headers) do
         Enum.reduce(headers, [], fn { k, v }, acc ->
           key = binary_to_atom(to_string(k))
           value = to_string(v)
@@ -42,7 +44,7 @@ defmodule HTTPotion.Base do
             target <- HTTPotion.AsyncHeaders[
               id: id,
               status_code: process_status_code(status_code),
-              headers: process_headers(headers)
+              headers: process_response_headers(headers)
             ]
             transformer(target)
           {:ibrowse_async_response, id, chunk} ->
@@ -76,13 +78,13 @@ defmodule HTTPotion.Base do
         ib_options = Keyword.get options, :ibrowse, []
         if stream_to, do:
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
-        headers = Enum.map headers, fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
+        headers = process_request_headers(Enum.map headers, fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end)
         body = process_request_body body
         case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do
           {:ok, status_code, headers, body} ->
             HTTPotion.Response[
               status_code: process_status_code(status_code),
-              headers: process_headers(headers),
+              headers: process_response_headers(headers),
               body: process_response_body(body)
             ]
           {:ibrowse_req_id, id} ->
