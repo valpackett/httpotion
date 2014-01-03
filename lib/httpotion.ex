@@ -64,7 +64,7 @@ defmodule HTTPotion.Base do
         * method - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
         * url - URL, binary string or char list
         * body - request body, binary string or char list
-        * headers - HTTP headers, orddict (eg. [{:Accept, "application/json"}])
+        * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
         * options - orddict of options
       Options:
         * timeout - timeout in ms, integer
@@ -78,7 +78,7 @@ defmodule HTTPotion.Base do
         ib_options = Keyword.get options, :ibrowse, []
         if stream_to, do:
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
-        headers = process_request_headers(Enum.map headers, fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end)
+        headers = Enum.map process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
         body = process_request_body body
         case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do
           {:ok, status_code, headers, body} ->
