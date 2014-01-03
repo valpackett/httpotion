@@ -21,9 +21,15 @@ You can also extend it to make cool API clients or something (this example uses 
 ```elixir
 defmodule GitHub do
   use HTTPotion.Base
+
   def process_url(url) do
     "https://api.github.com/" <> url
   end
+
+  def process_request_headers(headers) do
+    Dict.put headers, "User-Agent", "github-potion"
+  end
+
   def process_response_body(body) do
     json = :jsx.decode to_string(body)
     json2 = Enum.map json, fn ({k, v}) -> { binary_to_atom(k), v } end
@@ -32,7 +38,7 @@ defmodule GitHub do
 end
 
 iex> GitHub.start
-iex> GitHub.get("users/myfreeweb", ["User-Agent": "httpotion-example"]).body[:public_repos]
+iex> GitHub.get("users/myfreeweb").body[:public_repos]
 37
 ```
 
