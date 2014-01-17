@@ -41,20 +41,20 @@ defmodule HTTPotion.Base do
       def transformer(target) do
         receive do
           {:ibrowse_async_headers, id, status_code, headers} ->
-            target <- HTTPotion.AsyncHeaders[
+            send(target, HTTPotion.AsyncHeaders[
               id: id,
               status_code: process_status_code(status_code),
               headers: process_response_headers(headers)
-            ]
+            ])
             transformer(target)
           {:ibrowse_async_response, id, chunk} ->
-            target <- HTTPotion.AsyncChunk[
+            send(target, HTTPotion.AsyncChunk[
               id: id,
               chunk: process_response_chunk(chunk)
-            ]
+            ])
             transformer(target)
           {:ibrowse_async_response_end, id} ->
-            target <- HTTPotion.AsyncEnd[id: id]
+            send(target, HTTPotion.AsyncEnd[id: id])
         end
       end
 

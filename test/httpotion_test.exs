@@ -1,5 +1,3 @@
-Code.require_file "../test_helper.exs", __FILE__
-
 defmodule HTTPotionTest do
   use ExUnit.Case
   import ExUnit.CaptureIO
