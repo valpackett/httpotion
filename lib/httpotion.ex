@@ -71,7 +71,7 @@ defmodule HTTPotion.Base do
       Returns HTTPotion.Response if successful.
       Raises  HTTPotion.HTTPError if failed.
       """
-      def request(method, url, body // "", headers // [], options // []) do
+      def request(method, url, body \\ "", headers \\ [], options \\ []) do
         url = to_char_list process_url(to_string(url))
         timeout = Keyword.get options, :timeout, 5000
         stream_to = Keyword.get options, :stream_to
@@ -98,13 +98,13 @@ defmodule HTTPotion.Base do
         end
       end
 
-      def get(url, headers // [], options // []),         do: request(:get, url, "", headers, options)
-      def put(url, body, headers // [], options // []),   do: request(:put, url, body, headers, options)
-      def head(url, headers // [], options // []),        do: request(:head, url, "", headers, options)
-      def post(url, body, headers // [], options // []),  do: request(:post, url, body, headers, options)
-      def patch(url, body, headers // [], options // []), do: request(:patch, url, body, headers, options)
-      def delete(url, headers // [], options // []),      do: request(:delete, url, "", headers, options)
-      def options(url, headers // [], options // []),     do: request(:options, url, "", headers, options)
+      def get(url, headers \\ [], options \\ []),         do: request(:get, url, "", headers, options)
+      def put(url, body, headers \\ [], options \\ []),   do: request(:put, url, body, headers, options)
+      def head(url, headers \\ [], options \\ []),        do: request(:head, url, "", headers, options)
+      def post(url, body, headers \\ [], options \\ []),  do: request(:post, url, body, headers, options)
+      def patch(url, body, headers \\ [], options \\ []), do: request(:patch, url, body, headers, options)
+      def delete(url, headers \\ [], options \\ []),      do: request(:delete, url, "", headers, options)
+      def options(url, headers \\ [], options \\ []),     do: request(:options, url, "", headers, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end
