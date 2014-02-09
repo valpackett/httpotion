@@ -96,7 +96,7 @@ defmodule HTTPotionTest do
     assert_receive HTTPotion.AsyncEnd[id: ^id], 1_000
   end
 
-  defp assert_response(response, function // nil) do
+  defp assert_response(response, function \\ nil) do
     assert response.success?(:extra)
     assert response.headers[:Connection] == "keep-alive"
     assert is_binary(response.body)
