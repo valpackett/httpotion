@@ -6,7 +6,7 @@ defmodule HTTPotion.Base do
       end
 
       def process_url(url) do
-        unless url =~ %r/\Ahttps?:\/\// do
+        unless url =~ ~r/\Ahttps?:\/\// do
           "http://" <> url
         else
           url
