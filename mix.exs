@@ -13,8 +13,6 @@ defmodule HTTPotion.Mixfile do
   end
 
   defp deps do
-    [
-      {:ibrowse, "~> 4.0.1", github: "cmullaparthi/ibrowse"}
-    ]
+    [{ :ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.0" }]
   end
 end
