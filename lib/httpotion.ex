@@ -81,6 +81,12 @@ defmodule HTTPotion.Base do
         headers = Enum.map process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
         body = process_request_body body
         case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do
+          {:ok, status_code, headers, body, _} ->
+            HTTPotion.Response[
+              status_code: process_status_code(status_code),
+              headers: process_response_headers(headers),
+              body: process_response_body(body)
+            ]
           {:ok, status_code, headers, body} ->
             HTTPotion.Response[
               status_code: process_status_code(status_code),
