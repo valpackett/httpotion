@@ -1,4 +1,3 @@
-HTTPotion.start
 ExUnit.start
 
 defmodule PathHelpers do

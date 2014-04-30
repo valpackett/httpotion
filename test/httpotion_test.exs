@@ -1,6 +1,5 @@
 defmodule HTTPotionTest do
   use ExUnit.Case
-  import ExUnit.CaptureIO
   import PathHelpers
 
   test "get" do
@@ -78,13 +77,15 @@ defmodule HTTPotionTest do
       use HTTPotion.Base
 
       def process_url(url) do
-        IO.write "ok"
+        send(self, :ok)
 
         super(url)
       end
     end
 
-    assert capture_io(fn -> TestClient.head("httpbin.org/get") end) == "ok"
+    TestClient.head("httpbin.org/get")
+
+    assert_received :ok
   end
 
   test "asynchronous request" do
