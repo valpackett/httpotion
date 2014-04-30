@@ -89,15 +89,15 @@ defmodule HTTPotionTest do
 
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    HTTPotion.AsyncResponse[id: id] = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse]
 
-    assert_receive HTTPotion.AsyncHeaders[id: ^id, status_code: 200, headers: _headers], 1_000
-    assert_receive HTTPotion.AsyncChunk[id: ^id, chunk: _chunk], 1_000
-    assert_receive HTTPotion.AsyncEnd[id: ^id], 1_000
+    assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
+    assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
+    assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
   defp assert_response(response, function \\ nil) do
-    assert response.success?(:extra)
+    assert HTTPotion.Response.success?(response, :extra)
     assert response.headers[:Connection] == "keep-alive"
     assert is_binary(response.body)
 

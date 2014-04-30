@@ -40,21 +40,21 @@ defmodule HTTPotion.Base do
 
       def transformer(target) do
         receive do
-          {:ibrowse_async_headers, id, status_code, headers} ->
-            send(target, HTTPotion.AsyncHeaders[
+          { :ibrowse_async_headers, id, status_code, headers } ->
+            send(target, %HTTPotion.AsyncHeaders{
               id: id,
               status_code: process_status_code(status_code),
               headers: process_response_headers(headers)
-            ])
+            })
             transformer(target)
-          {:ibrowse_async_response, id, chunk} ->
-            send(target, HTTPotion.AsyncChunk[
+          { :ibrowse_async_response, id, chunk } ->
+            send(target, %HTTPotion.AsyncChunk{
               id: id,
               chunk: process_response_chunk(chunk)
-            ])
+            })
             transformer(target)
-          {:ibrowse_async_response_end, id} ->
-            send(target, HTTPotion.AsyncEnd[id: id])
+          { :ibrowse_async_response_end, id } ->
+            send(target, %HTTPotion.AsyncEnd{ id: id })
         end
       end
 
@@ -81,25 +81,25 @@ defmodule HTTPotion.Base do
         headers = Enum.map process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
         body = process_request_body body
         case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do
-          {:ok, status_code, headers, body, _} ->
-            HTTPotion.Response[
+          { :ok, status_code, headers, body, _ } ->
+            %HTTPotion.Response{
               status_code: process_status_code(status_code),
               headers: process_response_headers(headers),
               body: process_response_body(body)
-            ]
-          {:ok, status_code, headers, body} ->
-            HTTPotion.Response[
+            }
+          { :ok, status_code, headers, body } ->
+            %HTTPotion.Response{
               status_code: process_status_code(status_code),
               headers: process_response_headers(headers),
               body: process_response_body(body)
-            ]
-          {:ibrowse_req_id, id} ->
-            HTTPotion.AsyncResponse[id: id]
-          {:error, {:conn_failed, {:error, reason}}} ->
+            }
+          { :ibrowse_req_id, id } ->
+            %HTTPotion.AsyncResponse{ id: id }
+          { :error, { :conn_failed, { :error, reason }}} ->
             raise HTTPotion.HTTPError, message: to_string(reason)
-          {:error, :conn_failed} ->
+          { :error, :conn_failed } ->
             raise HTTPotion.HTTPError, message: "conn_failed"
-          {:error, reason} ->
+          { :error, reason } ->
             raise HTTPotion.HTTPError, message: to_string(reason)
         end
       end
@@ -122,20 +122,33 @@ defmodule HTTPotion do
   The HTTP client for Elixir.
   """
 
-  defrecord Response, status_code: nil, body: nil, headers: [] do
-    def success?(__MODULE__[status_code: code]) do
+  defmodule Response do
+    defstruct status_code: nil, body: nil, headers: []
+
+    def success?(%__MODULE__{ status_code: code }) do
       code in 200..299
     end
 
-    def success?(:extra, __MODULE__[status_code: code] = response) do
+    def success?(%__MODULE__{ status_code: code } = response, :extra) do
       success?(response) or code in [302, 304]
     end
   end
 
-  defrecord AsyncResponse, id: nil
-  defrecord AsyncHeaders, id: nil, status_code: nil, headers: []
-  defrecord AsyncChunk, id: nil, chunk: nil
-  defrecord AsyncEnd, id: nil
+  defmodule AsyncResponse do
+    defstruct id: nil
+  end
+
+  defmodule AsyncHeaders do
+    defstruct id: nil, status_code: nil, headers: []
+  end
+
+  defmodule AsyncChunk do
+    defstruct id: nil, chunk: nil
+  end
+
+  defmodule AsyncEnd do
+    defstruct id: nil
+  end
 
   defexception HTTPError, message: nil
 
