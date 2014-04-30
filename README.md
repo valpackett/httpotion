@@ -5,8 +5,9 @@ Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httpa
 
 ## Usage
 
-```elixir
+```iex
 iex> HTTPotion.start
+{:ok, [:asn1, :public_key, :ssl, :ibrowse, :httpotion]}
 iex> response = HTTPotion.get "http://localhost:4000"
 %HTTPotion.Response{body: "...", headers: [{:Connection,"Keep-Alive"}...], status_code: 200}
 iex> HTTPotion.Response.success?(response)
@@ -36,15 +37,18 @@ defmodule GitHub do
     :orddict.from_list json2
   end
 end
+```
 
+```iex
 iex> GitHub.start
+{:ok, [:asn1, :public_key, :ssl, :ibrowse, :httpotion]}
 iex> GitHub.get("users/myfreeweb").body[:public_repos]
 37
 ```
 
 And now with async!
 
-```elixir
+```iex
 iex> HTTPotion.get "http://floatboth.com", [], [stream_to: self]
 %HTTPotion.AsyncResponse{id: {1372,8757,656584}}
 iex> flush
