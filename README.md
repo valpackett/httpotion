@@ -8,8 +8,8 @@ Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httpa
 ```elixir
 iex> HTTPotion.start
 iex> response = HTTPotion.get "http://localhost:4000"
-HTTPotion.Response[body: "...", headers: [{:Connection,"Keep-Alive"}...], status_code: 200]
-iex> response.success?
+%HTTPotion.Response{body: "...", headers: [{:Connection,"Keep-Alive"}...], status_code: 200}
+iex> HTTPotion.Response.success?(response)
 true
 
 iex> HTTPotion.get "http://localhost:1"
@@ -46,16 +46,16 @@ And now with async!
 
 ```elixir
 iex> HTTPotion.get "http://floatboth.com", [], [stream_to: self]
-HTTPotion.AsyncResponse[id: {1372,8757,656584}]
-iex> flush()
-HTTPotion.AsyncHeaders[id: {1372,8757,656584}, status_code: 200, headers: ["keep-alive", "Content-Type": "text/html;charset=utf-8", Date: "Sun, 23 Jun 2013 17:32:32 GMT", Server: "cloudflare-nginx", "Transfer-Encoding": "chunked"]]
-HTTPotion.AsyncChunk[id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n..."]
-HTTPotion.AsyncEnd[id: {1372,8757,656584}]
+%HTTPotion.AsyncResponse{id: {1372,8757,656584}}
+iex> flush
+%HTTPotion.AsyncHeaders{id: {1372,8757,656584}, status_code: 200, headers: ["keep-alive", "Content-Type": "text/html;charset=utf-8", Date: "Sun, 23 Jun 2013 17:32:32 GMT", Server: "cloudflare-nginx", "Transfer-Encoding": "chunked"]}
+%HTTPotion.AsyncChunk{id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n..."}
+%HTTPotion.AsyncEnd{id: {1372,8757,656584}}
 ```
 
 ## License
 
-Copyright © 2013-2014 [myfreeweb](https://github.com/myfreeweb), [lexmag](https://github.com/lexmag) and [contributors](https://github.com/myfreeweb/httpotion/graphs/contributors)  
+Copyright © 2013-2014 [myfreeweb](https://github.com/myfreeweb), [lexmag](https://github.com/lexmag) and [contributors](https://github.com/myfreeweb/httpotion/graphs/contributors)
 This work is free. You can redistribute it and/or modify it under the
 terms of the Do What The Fuck You Want To Public License, Version 2,
 as published by Sam Hocevar. See the COPYING file for more details.
