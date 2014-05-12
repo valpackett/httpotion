@@ -18,11 +18,11 @@ defmodule HTTPotion.Base do
       def process_request_headers(headers), do: headers
 
       def process_response_body(body) do
-        iolist_to_binary body
+        iodata_to_binary body
       end
 
       def process_response_chunk(chunk) do
-        iolist_to_binary chunk
+        iodata_to_binary chunk
       end
 
       def process_response_headers(headers) do
