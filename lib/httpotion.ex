@@ -150,7 +150,9 @@ defmodule HTTPotion do
     defstruct id: nil
   end
 
-  defexception HTTPError, message: nil
+  defmodule HTTPError do
+    defexception [:message]
+  end
 
   use HTTPotion.Base
 end
