@@ -18,16 +18,16 @@ defmodule HTTPotion.Base do
       def process_request_headers(headers), do: headers
 
       def process_response_body(body) do
-        iodata_to_binary body
+        IO.iodata_to_binary body
       end
 
       def process_response_chunk(chunk) do
-        iodata_to_binary chunk
+        IO.iodata_to_binary chunk
       end
 
       def process_response_headers(headers) do
         Enum.reduce(headers, [], fn { k, v }, acc ->
-          key = binary_to_atom(to_string(k))
+          key = String.to_atom(to_string(k))
           value = to_string(v)
 
           Dict.update acc, key, value, &[value | List.wrap(&1)]
