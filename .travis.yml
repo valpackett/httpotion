@@ -15,4 +15,5 @@ before_install:
 before_script:
   - export PATH=$PWD/elixir/bin:$PATH
 
+install: mix deps.get
 script: mix test --trace
