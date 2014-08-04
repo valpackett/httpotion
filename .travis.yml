@@ -11,8 +11,6 @@ env:
 before_install:
   - wget https://github.com/elixir-lang/elixir/releases/download/v$ELIXIR_VSN/Precompiled.zip
   - unzip -qq Precompiled.zip -d elixir
-
-before_script:
   - export PATH=$PWD/elixir/bin:$PATH
 
 install: mix deps.get
