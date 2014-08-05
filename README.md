@@ -1,4 +1,4 @@
-# HTTPotion [![Build Status](https://travis-ci.org/myfreeweb/httpotion.png?branch=master)](https://travis-ci.org/myfreeweb/httpotion)
+# HTTPotion [![Build Status](https://img.shields.io/travis/myfreeweb/httpotion.svg?style=flat)](https://travis-ci.org/myfreeweb/httpotion)  [![WTFPL](https://img.shields.io/badge/license-WTFPL-brightgreen.svg?style=flat)](https://www.tldrlegal.com/l/wtfpl)
 
 HTTP client for Elixir, based on [ibrowse](https://github.com/cmullaparthi/ibrowse).
 Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httparty), [HTTPretty](https://github.com/gabrielfalcao/HTTPretty), [HTTParrot](https://github.com/edgurgel/httparrot) and [HTTPie](https://github.com/jkbr/httpie).
