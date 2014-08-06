@@ -1,7 +1,32 @@
-# HTTPotion [![Build Status](https://img.shields.io/travis/myfreeweb/httpotion.svg?style=flat)](https://travis-ci.org/myfreeweb/httpotion)  [![WTFPL](https://img.shields.io/badge/license-WTFPL-brightgreen.svg?style=flat)](https://www.tldrlegal.com/l/wtfpl)
+# HTTPotion [![hex.pm package](https://img.shields.io/badge/hex-pm-orange.svg?style=flat)](https://hex.pm/packages/httpotion) [![Build Status](https://img.shields.io/travis/myfreeweb/httpotion.svg?style=flat)](https://travis-ci.org/myfreeweb/httpotion)  [![WTFPL](https://img.shields.io/badge/license-WTFPL-brightgreen.svg?style=flat)](https://www.tldrlegal.com/l/wtfpl)
 
-HTTP client for Elixir, based on [ibrowse](https://github.com/cmullaparthi/ibrowse).
-Continues the HTTPun tradition of [HTTParty](https://github.com/jnunemaker/httparty), [HTTPretty](https://github.com/gabrielfalcao/HTTPretty), [HTTParrot](https://github.com/edgurgel/httparrot) and [HTTPie](https://github.com/jkbr/httpie).
+HTTP client for Elixir, based on [ibrowse].
+Continues the HTTPun tradition of [HTTParty], [HTTPretty], [HTTParrot] and [HTTPie].
+
+[ibrowse]: https://github.com/cmullaparthi/ibrowse
+[HTTParty]: https://github.com/jnunemaker/httparty
+[HTTPretty]: https://github.com/gabrielfalcao/HTTPretty
+[HTTParrot]: https://github.com/edgurgel/httparrot
+[HTTPie]: https://github.com/jkbr/httpie
+
+## Installation
+
+Add HTTPotion **and ibrowse** to your project's dependencies in `mix.exs`:
+
+```elixir
+  defp deps do
+    [
+      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.0"},
+      {:httpotion, "~> 0.2.0"}
+    ]
+  end
+```
+
+And fetch your project's dependencies:
+
+```bash
+$ mix deps.get
+```
 
 ## Usage
 
