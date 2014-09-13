@@ -18,7 +18,7 @@ defmodule HTTPotion.Base do
       def process_request_headers(headers), do: headers
 
       def process_response_body(body = {:file, filename}) do
-        {:file, IO.iodata_to_binary(filename)}
+        IO.iodata_to_binary(filename)
       end
 
       def process_response_body(body) do
