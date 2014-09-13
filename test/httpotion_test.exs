@@ -54,6 +54,12 @@ defmodule HTTPotionTest do
     assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse ])
   end
 
+  test "ibrowse save_response_to_file" do
+    file = Path.join(System.tmp_dir, "httpotion_ibrowse_test.txt")
+    ibrowse = [save_response_to_file: String.to_char_list(file)]
+    assert_response HTTPotion.get("http://httpbin.org/bytes/2048", [], [ibrowse: ibrowse])
+  end
+
   test "explicit http scheme" do
     assert_response HTTPotion.head("http://httpbin.org/get")
   end
