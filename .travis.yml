@@ -1,17 +1,11 @@
 language: erlang
-
 otp_release:
-  - 17.0
-
-env:
-  - ELIXIR_VSN=0.13.3
-  - ELIXIR_VSN=0.14.3
-  - ELIXIR_VSN=0.15.0
-
+  - 17.1
 before_install:
-  - wget https://github.com/elixir-lang/elixir/releases/download/v$ELIXIR_VSN/Precompiled.zip
-  - unzip -qq Precompiled.zip -d elixir
-  - export PATH=$PWD/elixir/bin:$PATH
-
-install: mix deps.get
-script: mix test --trace
+  - wget http://s3.hex.pm/builds/elixir/v1.0.2.zip
+  - unzip -d elixir v1.0.2.zip
+before_script:
+  - export PATH=`pwd`/elixir/bin:$PATH
+  - mix local.hex --force
+  - mix deps.get --only test
+script: mix test
