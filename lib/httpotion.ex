@@ -5,6 +5,32 @@ defmodule HTTPotion.Base do
         :application.ensure_all_started(:httpotion)
       end
 
+      def spawn_worker_process(url) do
+        url
+        |> String.to_char_list
+        |> :ibrowse.spawn_worker_process
+      end
+
+      def spawn_worker_process(host, port) do
+        host
+        |> String.to_char_list
+        |> :ibrowse.spawn_worker_process(port)
+      end
+
+      def spawn_link_worker_process(url) do
+        url
+        |> String.to_char_list
+        |> :ibrowse.spawn_worker_process
+      end
+
+      def spawn_link_worker_process(host, port) do
+        host
+        |> String.to_char_list
+        |> :ibrowse.spawn_worker_process(port)
+      end
+
+      def stop_worker_process(pid), do: :ibrowse.stop_worker_process(pid)
+
       def process_url(url) do
         unless url =~ ~r/\Ahttps?:\/\// do
           "http://" <> url
@@ -36,6 +62,26 @@ defmodule HTTPotion.Base do
 
       def process_status_code(status_code) do
         elem(:string.to_integer(status_code), 0)
+      end
+
+      def process_arguments(method, url, body, headers, options) do
+        args = %{
+          method:  method,
+          url:     url |> to_string |> process_url |> to_char_list,
+          timeout: Keyword.get(options, :timeout, 5000),
+          headers: Enum.map(process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
+          body:    process_request_body(body)
+        }
+
+        stream_to = Keyword.get(options, :stream_to)
+        ib_options = Keyword.get(options, :ibrowse, [])
+
+        if stream_to do
+          ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
+          Map.put(args, :ib_options, ib_options)
+        else
+          Map.put(args, :ib_options, ib_options)
+        end
       end
 
       def transformer(target) do
@@ -72,15 +118,21 @@ defmodule HTTPotion.Base do
       Raises  HTTPotion.HTTPError if failed.
       """
       def request(method, url, body \\ "", headers \\ [], options \\ []) do
-        url = to_char_list process_url(to_string(url))
-        timeout = Keyword.get options, :timeout, 5000
-        stream_to = Keyword.get options, :stream_to
-        ib_options = Keyword.get options, :ibrowse, []
-        if stream_to, do:
-          ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
-        headers = Enum.map process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end
-        body = process_request_body body
-        case :ibrowse.send_req(url, headers, method, body, ib_options, timeout) do
+        args = process_arguments(method, url, body, headers, options)
+
+        :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
+        |> handle_response
+      end
+
+      def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
+        args = process_arguments(method, url, body, headers, options)
+
+        :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
+        |> handle_response
+      end
+
+      def handle_response(response) do
+        case response do
           { :ok, status_code, headers, body, _ } ->
             %HTTPotion.Response{
               status_code: process_status_code(status_code),
@@ -111,6 +163,14 @@ defmodule HTTPotion.Base do
       def patch(url, body, headers \\ [], options \\ []), do: request(:patch, url, body, headers, options)
       def delete(url, headers \\ [], options \\ []),      do: request(:delete, url, "", headers, options)
       def options(url, headers \\ [], options \\ []),     do: request(:options, url, "", headers, options)
+
+      def get_direct(conn_pid, url, headers \\ [], options \\ []),         do: request_direct(conn_pid, :get, url, "", headers, options)
+      def put_direct(conn_pid, url, body, headers \\ [], options \\ []),   do: request_direct(conn_pid, :put, url, body, headers, options)
+      def head_direct(conn_pid, url, headers \\ [], options \\ []),        do: request_direct(conn_pid, :head, url, "", headers, options)
+      def post_direct(conn_pid, url, body, headers \\ [], options \\ []),  do: request_direct(conn_pid, :post, url, body, headers, options)
+      def patch_direct(conn_pid, url, body, headers \\ [], options \\ []), do: request_direct(conn_pid, :patch, url, body, headers, options)
+      def delete_direct(conn_pid, url, headers \\ [], options \\ []),      do: request_direct(conn_pid, :delete, url, "", headers, options)
+      def options_direct(conn_pid, url, headers \\ [], options \\ []),     do: request_direct(conn_pid, :options, url, "", headers, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end
