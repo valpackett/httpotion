@@ -5,28 +5,12 @@ defmodule HTTPotion.Base do
         :application.ensure_all_started(:httpotion)
       end
 
-      def spawn_worker_process(url) do
-        url
-        |> String.to_char_list
-        |> :ibrowse.spawn_worker_process
+      def spawn_worker_process(url, options \\ []) do
+        GenServer.start(:ibrowse_http_client, String.to_char_list(url), options)
       end
 
-      def spawn_worker_process(host, port) do
-        host
-        |> String.to_char_list
-        |> :ibrowse.spawn_worker_process(port)
-      end
-
-      def spawn_link_worker_process(url) do
-        url
-        |> String.to_char_list
-        |> :ibrowse.spawn_worker_process
-      end
-
-      def spawn_link_worker_process(host, port) do
-        host
-        |> String.to_char_list
-        |> :ibrowse.spawn_worker_process(port)
+      def spawn_link_worker_process(url, options \\ []) do
+        GenServer.start_link(:ibrowse_http_client, String.to_char_list(url), options)
       end
 
       def stop_worker_process(pid), do: :ibrowse.stop_worker_process(pid)

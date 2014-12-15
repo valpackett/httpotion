@@ -3,7 +3,7 @@ defmodule DirectTest do
   import PathHelpers
 
   setup_all do
-    {:ok, pid} = HTTPotion.spawn_worker_process("httpbin.org", 80)
+    {:ok, pid} = HTTPotion.spawn_worker_process("http://httpbin.org")
     Process.register(pid, :non_pooled_connection)
     :ok
   end
