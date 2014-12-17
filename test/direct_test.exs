@@ -9,72 +9,72 @@ defmodule DirectTest do
   end
 
   test "get" do
-    assert_response HTTPotion.get_direct(:non_pooled_connection, "httpbin.org"), fn(response) ->
+    assert_response HTTPotion.get("httpbin.org", [direct: :non_pooled_connection]), fn(response) ->
       assert match?(<<60, 33, 68, 79, _ :: binary>>, response.body)
     end
   end
 
   test "head" do
-    assert_response HTTPotion.head_direct(:non_pooled_connection, "httpbin.org/get"), fn(response) ->
+    assert_response HTTPotion.head("httpbin.org/get", [direct: :non_pooled_connection]), fn(response) ->
       assert response.body == ""
     end
   end
 
   test "post charlist body" do
-    assert_response HTTPotion.post_direct(:non_pooled_connection, "httpbin.org/post", 'test')
+    assert_response HTTPotion.post("httpbin.org/post", 'test', [direct: :non_pooled_connection])
   end
 
   test "post binary body" do
     { :ok, file } = File.read(fixture_path("image.png"))
 
-    assert_response HTTPotion.post_direct(:non_pooled_connection, "httpbin.org/post", file)
+    assert_response HTTPotion.post("httpbin.org/post", file, [direct: :non_pooled_connection])
   end
 
   test "put" do
-    assert_response HTTPotion.put_direct(:non_pooled_connection, "httpbin.org/put", "test")
+    assert_response HTTPotion.put("httpbin.org/put", "test", [direct: :non_pooled_connection])
   end
 
   test "patch" do
-    assert_response HTTPotion.patch_direct(:non_pooled_connection, "httpbin.org/patch", "test")
+    assert_response HTTPotion.patch("httpbin.org/patch", "test", [direct: :non_pooled_connection])
   end
 
   test "delete" do
-    assert_response HTTPotion.delete_direct(:non_pooled_connection, "httpbin.org/delete")
+    assert_response HTTPotion.delete("httpbin.org/delete", [direct: :non_pooled_connection])
   end
 
   test "options" do
-    assert_response HTTPotion.options_direct(:non_pooled_connection, "httpbin.org/get"), fn(response) ->
+    assert_response HTTPotion.options("httpbin.org/get", [direct: :non_pooled_connection]), fn(response) ->
       assert response.headers[:"Content-Length"] == "0"
       assert is_binary(response.headers[:Allow])
     end
   end
 
   test "headers" do
-    assert_response HTTPotion.head_direct(:non_pooled_connection, "http://httpbin.org/cookies/set?first=foo&second=bar"), fn(response) ->
+    assert_response HTTPotion.head("http://httpbin.org/cookies/set?first=foo&second=bar", [direct: :non_pooled_connection]), fn(response) ->
       assert_list response.headers[:"Set-Cookie"], ["first=foo; Path=/", "second=bar; Path=/"]
     end
   end
 
   test "ibrowse option" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    assert_response HTTPotion.get_direct(:non_pooled_connection, "http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse ])
+    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse, direct: :non_pooled_connection ])
   end
 
   test "explicit http scheme" do
-    assert_response HTTPotion.head_direct(:non_pooled_connection, "http://httpbin.org/get")
+    assert_response HTTPotion.head("http://httpbin.org/get", [direct: :non_pooled_connection])
   end
 
   test "https scheme" do
-    assert_response HTTPotion.head_direct(:non_pooled_connection, "https://httpbin.org/get")
+    assert_response HTTPotion.head("https://httpbin.org/get", [direct: :non_pooled_connection])
   end
 
   test "char list URL" do
-    assert_response HTTPotion.head_direct(:non_pooled_connection, 'httpbin.org/get')
+    assert_response HTTPotion.head('httpbin.org/get', [direct: :non_pooled_connection])
   end
 
   test "exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
-      HTTPotion.get "localhost:1"
+      HTTPotion.get "localhost:1", [direct: :non_pooled_connection]
     end
   end
 
@@ -89,14 +89,14 @@ defmodule DirectTest do
       end
     end
 
-    TestClient.head_direct(:non_pooled_connection, "httpbin.org/get")
+    TestClient.head("httpbin.org/get", [direct: :non_pooled_connection])
 
     assert_received :ok
   end
 
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get_direct :non_pooled_connection, "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse, direct: :non_pooled_connection]
 
     assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000

@@ -102,10 +102,14 @@ defmodule HTTPotion.Base do
       Raises  HTTPotion.HTTPError if failed.
       """
       def request(method, url, body \\ "", headers \\ [], options \\ []) do
-        args = process_arguments(method, url, body, headers, options)
+        if conn_pid = Keyword.get(options, :direct) do
+          request_direct(conn_pid, method, url, body, headers, options)
+        else
+          args = process_arguments(method, url, body, headers, options)
 
-        :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
-        |> handle_response
+          :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
+          |> handle_response
+        end
       end
 
       def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
@@ -147,14 +151,6 @@ defmodule HTTPotion.Base do
       def patch(url, body, headers \\ [], options \\ []), do: request(:patch, url, body, headers, options)
       def delete(url, headers \\ [], options \\ []),      do: request(:delete, url, "", headers, options)
       def options(url, headers \\ [], options \\ []),     do: request(:options, url, "", headers, options)
-
-      def get_direct(conn_pid, url, headers \\ [], options \\ []),         do: request_direct(conn_pid, :get, url, "", headers, options)
-      def put_direct(conn_pid, url, body, headers \\ [], options \\ []),   do: request_direct(conn_pid, :put, url, body, headers, options)
-      def head_direct(conn_pid, url, headers \\ [], options \\ []),        do: request_direct(conn_pid, :head, url, "", headers, options)
-      def post_direct(conn_pid, url, body, headers \\ [], options \\ []),  do: request_direct(conn_pid, :post, url, body, headers, options)
-      def patch_direct(conn_pid, url, body, headers \\ [], options \\ []), do: request_direct(conn_pid, :patch, url, body, headers, options)
-      def delete_direct(conn_pid, url, headers \\ [], options \\ []),      do: request_direct(conn_pid, :delete, url, "", headers, options)
-      def options_direct(conn_pid, url, headers \\ [], options \\ []),     do: request_direct(conn_pid, :options, url, "", headers, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end
