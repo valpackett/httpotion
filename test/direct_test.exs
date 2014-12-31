@@ -39,7 +39,7 @@ defmodule DirectTest do
   end
 
   test "delete" do
-    assert_response HTTPotion.delete("httpbin.org/delete", [direct: :non_pooled_connection])
+    assert_response HTTPotion.delete("httpbin.org/delete", "test", [direct: :non_pooled_connection])
   end
 
   test "options" do
