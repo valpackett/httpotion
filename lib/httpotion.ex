@@ -142,13 +142,13 @@ defmodule HTTPotion.Base do
         end
       end
 
-      def get(url, headers \\ [], options \\ []),         do: request(:get, url, "", headers, options)
-      def put(url, body, headers \\ [], options \\ []),   do: request(:put, url, body, headers, options)
-      def head(url, headers \\ [], options \\ []),        do: request(:head, url, "", headers, options)
-      def post(url, body, headers \\ [], options \\ []),  do: request(:post, url, body, headers, options)
-      def patch(url, body, headers \\ [], options \\ []), do: request(:patch, url, body, headers, options)
-      def delete(url, headers \\ [], options \\ []),      do: request(:delete, url, "", headers, options)
-      def options(url, headers \\ [], options \\ []),     do: request(:options, url, "", headers, options)
+      def get(url,     options \\ []), do: request(:get, url, options)
+      def put(url,     options \\ []), do: request(:put, url, options)
+      def head(url,    options \\ []), do: request(:head, url, options)
+      def post(url,    options \\ []), do: request(:post, url, options)
+      def patch(url,   options \\ []), do: request(:patch, url, options)
+      def delete(url,  options \\ []), do: request(:delete, url, options)
+      def options(url, options \\ []), do: request(:options, url, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end

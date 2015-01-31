@@ -21,21 +21,21 @@ defmodule DirectTest do
   end
 
   test "post charlist body" do
-    assert_response HTTPotion.post("httpbin.org/post", 'test', [direct: :non_pooled_connection])
+    assert_response HTTPotion.post("httpbin.org/post", [body: 'test', direct: :non_pooled_connection])
   end
 
   test "post binary body" do
     { :ok, file } = File.read(fixture_path("image.png"))
 
-    assert_response HTTPotion.post("httpbin.org/post", file, [direct: :non_pooled_connection])
+    assert_response HTTPotion.post("httpbin.org/post", [body: file, direct: :non_pooled_connection])
   end
 
   test "put" do
-    assert_response HTTPotion.put("httpbin.org/put", "test", [direct: :non_pooled_connection])
+    assert_response HTTPotion.put("httpbin.org/put", [body: "test", direct: :non_pooled_connection])
   end
 
   test "patch" do
-    assert_response HTTPotion.patch("httpbin.org/patch", "test", [direct: :non_pooled_connection])
+    assert_response HTTPotion.patch("httpbin.org/patch", [body: "test", direct: :non_pooled_connection])
   end
 
   test "delete" do
@@ -57,7 +57,7 @@ defmodule DirectTest do
 
   test "ibrowse option" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse, direct: :non_pooled_connection ])
+    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [ ibrowse: ibrowse, direct: :non_pooled_connection ])
   end
 
   test "explicit http scheme" do
@@ -97,7 +97,7 @@ defmodule DirectTest do
 
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse, direct: :non_pooled_connection]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self, ibrowse: ibrowse, direct: :non_pooled_connection]
 
     assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000

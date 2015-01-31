@@ -15,21 +15,21 @@ defmodule HTTPotionTest do
   end
 
   test "post charlist body" do
-    assert_response HTTPotion.post("httpbin.org/post", 'test')
+    assert_response HTTPotion.post("httpbin.org/post", [body: 'test'])
   end
 
   test "post binary body" do
     { :ok, file } = File.read(fixture_path("image.png"))
 
-    assert_response HTTPotion.post("httpbin.org/post", file)
+    assert_response HTTPotion.post("httpbin.org/post", [body: file])
   end
 
   test "put" do
-    assert_response HTTPotion.put("httpbin.org/put", "test")
+    assert_response HTTPotion.put("httpbin.org/put", [body: "test"])
   end
 
   test "patch" do
-    assert_response HTTPotion.patch("httpbin.org/patch", "test")
+    assert_response HTTPotion.patch("httpbin.org/patch", [body: "test"])
   end
 
   test "delete" do
@@ -51,13 +51,13 @@ defmodule HTTPotionTest do
 
   test "ibrowse option" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [], [ ibrowse: ibrowse ])
+    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [ ibrowse: ibrowse ])
   end
 
   test "ibrowse save_response_to_file" do
     file = Path.join(System.tmp_dir, "httpotion_ibrowse_test.txt")
     ibrowse = [save_response_to_file: String.to_char_list(file)]
-    assert_response HTTPotion.get("http://httpbin.org/bytes/2048", [], [ibrowse: ibrowse])
+    assert_response HTTPotion.get("http://httpbin.org/bytes/2048", [ibrowse: ibrowse])
   end
 
   test "explicit http scheme" do
@@ -74,7 +74,7 @@ defmodule HTTPotionTest do
 
   test "exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
-      HTTPotion.get "localhost:1"
+      HTTPotion.get("localhost:1")
     end
   end
 
@@ -96,7 +96,7 @@ defmodule HTTPotionTest do
 
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [], [stream_to: self, ibrowse: ibrowse]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self, ibrowse: ibrowse]
 
     assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
