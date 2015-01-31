@@ -16,7 +16,7 @@ Add HTTPotion **and ibrowse** to your project's dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.0"},
+      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"},
       {:httpotion, "~> 1.0.0"}
     ]
   end
@@ -33,7 +33,7 @@ $ mix deps.get
 ```elixir
 iex> HTTPotion.start
 {:ok, [:asn1, :public_key, :ssl, :ibrowse, :httpotion]}
-iex> response = HTTPotion.get "http://localhost:4000"
+iex> response = HTTPotion.get "http://httpbin.org/get"
 %HTTPotion.Response{body: "...", headers: [{:Connection,"Keep-Alive"}...], status_code: 200}
 iex> HTTPotion.Response.success?(response)
 true
@@ -74,10 +74,10 @@ iex> GitHub.get("users/myfreeweb").body[:public_repos]
 And now with async!
 
 ```elixir
-iex> HTTPotion.get "http://floatboth.com", [], [stream_to: self]
+iex> HTTPotion.get "http://httpbin.org/get", [stream_to: self]
 %HTTPotion.AsyncResponse{id: {1372,8757,656584}}
 iex> flush
-%HTTPotion.AsyncHeaders{id: {1372,8757,656584}, status_code: 200, headers: ["keep-alive", "Content-Type": "text/html;charset=utf-8", Date: "Sun, 23 Jun 2013 17:32:32 GMT", Server: "cloudflare-nginx", "Transfer-Encoding": "chunked"]}
+%HTTPotion.AsyncHeaders{id: {1372,8757,656584}, status_code: 200, headers: ["keep-alive", "Content-Type": "text/html;charset=utf-8", Date: "Sun, 23 Jun 2013 17:32:32 GMT", "Transfer-Encoding": "chunked"]}
 %HTTPotion.AsyncChunk{id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n..."}
 %HTTPotion.AsyncEnd{id: {1372,8757,656584}}
 ```

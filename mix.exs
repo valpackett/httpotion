@@ -21,12 +21,12 @@ defmodule HTTPotion.Mixfile do
   end
 
   defp deps do
-    [{:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.0"}]
+    [{:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"}]
   end
 
   defp package do
     [files: ["lib", "mix.exs", "README.md", "COPYING"],
-     contributors: ["Greg V", "Aleksei Magusev"],
+     contributors: ["Greg V", "Aleksei Magusev", "pragdave", "Adam Kittelson", "Ookami Kenrou", "Guillermo Iguaran", "Sumeet Singh", "parroty", "Everton Ribeiro", "Florian J. Breunig", "Arjan van der Gaag", "Joseph Wilk", "Aidan Steele", "Paulo Almeida", "Peter Hamilton", "Steve", "Wojciech Kaczmarek", "d0rc", "falood", "Dave Thomas", "Arkar Aung", "Eduardo Gurgel", "Eito Katagiri"],
      licenses: ["Do What the Fuck You Want to Public License, Version 2"],
      links: %{ "GitHub" => "https://github.com/myfreeweb/httpotion" }]
   end
