@@ -56,24 +56,24 @@ defmodule HTTPotion.Base do
         elem(:string.to_integer(status_code), 0)
       end
 
-      def process_arguments(method, url, body, headers, options) do
-        args = %{
-          method:  method,
-          url:     url |> to_string |> process_url |> to_char_list,
-          timeout: Keyword.get(options, :timeout, 5000),
-          headers: Enum.map(process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
-          body:    process_request_body(body)
-        }
-
+      def process_arguments(method, url, options) do
+        body = Keyword.get(options, :body, "")
+        headers = Keyword.get(options, :headers, [])
         stream_to = Keyword.get(options, :stream_to)
         ib_options = Keyword.get(options, :ibrowse, [])
 
         if stream_to do
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
-          Map.put(args, :ib_options, ib_options)
-        else
-          Map.put(args, :ib_options, ib_options)
         end
+
+        %{
+          method:     method,
+          url:        url |> to_string |> process_url |> to_char_list,
+          timeout:    Keyword.get(options, :timeout, 5000),
+          headers:    Enum.map(process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
+          body:       process_request_body(body),
+          ib_options: ib_options
+        }
       end
 
       def transformer(target) do
@@ -101,30 +101,32 @@ defmodule HTTPotion.Base do
       Args:
         * method - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
         * url - URL, binary string or char list
-        * body - request body, binary string or char list
-        * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
         * options - orddict of options
       Options:
+        * body - request body, binary string or char list
+        * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
         * timeout - timeout in ms, integer
+        * direct - if you want to use ibrowse's direct feature, the pid of the process
       Returns HTTPotion.Response if successful.
       Raises  HTTPotion.HTTPError if failed.
       """
-      def request(method, url, body \\ "", headers \\ [], options \\ []) do
+      def request(method, url, options \\ []) do
+        args = process_arguments(method, url, options)
         if conn_pid = Keyword.get(options, :direct) do
-          request_direct(conn_pid, method, url, body, headers, options)
+          :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
         else
-          args = process_arguments(method, url, body, headers, options)
-
           :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
-          |> handle_response
-        end
+        end |> handle_response
       end
 
-      def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
-        args = process_arguments(method, url, body, headers, options)
+      @doc "Deprecated form of request; body and headers are now options, see request/3."
+      def request(method, url, body, headers, options) do
+        request(method, url, options |> Keyword.put(:body, body) |> Keyword.put(:headers, headers))
+      end
 
-        :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
-        |> handle_response
+      @doc "Deprecated form of request with the direct option; body and headers are now options, see request/3."
+      def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
+        request(method, url, options |> Keyword.put(:direct, conn_pid))
       end
 
       def handle_response(response) do
