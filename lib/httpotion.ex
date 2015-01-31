@@ -6,72 +6,57 @@ defmodule HTTPotion.Base do
       end
 
       def spawn_worker_process(url, options \\ []) do
-        GenServer.start(:ibrowse_http_client, String.to_char_list(url), options)
+        GenServer.start(:ibrowse_http_client, url |> process_url |> String.to_char_list, options)
       end
 
       def spawn_link_worker_process(url, options \\ []) do
-        GenServer.start_link(:ibrowse_http_client, String.to_char_list(url), options)
+        GenServer.start_link(:ibrowse_http_client, url |> process_url |> String.to_char_list, options)
       end
 
       def stop_worker_process(pid), do: :ibrowse.stop_worker_process(pid)
 
       def process_url(url) do
-        unless url =~ ~r/\Ahttps?:\/\// do
-          "http://" <> url
-        else
-          url
-        end
+        unless url =~ ~r/\Ahttps?:\/\//, do: "http://" <> url, else: url
       end
 
       def process_request_body(body), do: body
 
       def process_request_headers(headers), do: headers
 
-      def process_response_body(body = {:file, filename}) do
-        IO.iodata_to_binary(filename)
-      end
+      def process_status_code(status_code), do: elem(:string.to_integer(status_code), 0)
 
-      def process_response_body(body) do
-        IO.iodata_to_binary body
-      end
+      def process_response_body(body = {:file, filename}), do: IO.iodata_to_binary(filename)
+      def process_response_body(body), do: IO.iodata_to_binary(body)
 
-      def process_response_chunk(body = {:file, filename}) do
-        IO.iodata_to_binary(filename)
-      end
-
-      def process_response_chunk(chunk) do
-        IO.iodata_to_binary chunk
-      end
+      def process_response_chunk(body = {:file, filename}), do: IO.iodata_to_binary(filename)
+      def process_response_chunk(chunk), do: IO.iodata_to_binary(chunk)
 
       def process_response_headers(headers) do
         Enum.reduce(headers, [], fn { k, v }, acc ->
           key = String.to_atom(to_string(k))
           value = to_string(v)
 
-          Dict.update acc, key, value, &[value | List.wrap(&1)]
+          Dict.update(acc, key, value, &[value | List.wrap(&1)])
         end) |> Enum.sort
       end
 
-      def process_status_code(status_code) do
-        elem(:string.to_integer(status_code), 0)
-      end
-
+      @spec process_arguments(atom, String.t, :dict.dict) :: :dict.dict
       def process_arguments(method, url, options) do
-        body = Keyword.get(options, :body, "")
-        headers = Keyword.get(options, :headers, [])
-        stream_to = Keyword.get(options, :stream_to)
-        ib_options = Keyword.get(options, :ibrowse, [])
+        body       = Dict.get(options, :body, "")
+        headers    = Dict.get(options, :headers, [])
+        timeout    = Dict.get(options, :timeout, 5000)
+        ib_options = Dict.get(options, :ibrowse, [])
 
-        if stream_to do
+        if stream_to = Dict.get(options, :stream_to) do
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
         end
 
         %{
           method:     method,
           url:        url |> to_string |> process_url |> to_char_list,
-          timeout:    Keyword.get(options, :timeout, 5000),
-          headers:    Enum.map(process_request_headers(headers), fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
-          body:       process_request_body(body),
+          body:       body |> process_request_body,
+          headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
+          timeout:    timeout,
           ib_options: ib_options
         }
       end
@@ -106,13 +91,16 @@ defmodule HTTPotion.Base do
         * body - request body, binary string or char list
         * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
         * timeout - timeout in ms, integer
-        * direct - if you want to use ibrowse's direct feature, the pid of the process
-      Returns HTTPotion.Response if successful.
+        * stream_to - if you want to make an async request, the pid of the process
+        * direct - if you want to use ibrowse's direct feature, the pid of
+                   the worker spawned by spawn_worker_process or spawn_link_worker_process
+      Returns HTTPotion.Response or HTTPotion.AsyncResponse if successful.
       Raises  HTTPotion.HTTPError if failed.
       """
+      @spec request(atom, String.t, :dict.dict) :: HTTPotion.Response | HTTPotion.AsyncResponse
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
-        if conn_pid = Keyword.get(options, :direct) do
+        if conn_pid = Dict.get(options, :direct) do
           :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
         else
           :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
@@ -121,12 +109,12 @@ defmodule HTTPotion.Base do
 
       @doc "Deprecated form of request; body and headers are now options, see request/3."
       def request(method, url, body, headers, options) do
-        request(method, url, options |> Keyword.put(:body, body) |> Keyword.put(:headers, headers))
+        request(method, url, options |> Dict.put(:body, body) |> Dict.put(:headers, headers))
       end
 
       @doc "Deprecated form of request with the direct option; body and headers are now options, see request/3."
       def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
-        request(method, url, options |> Keyword.put(:direct, conn_pid))
+        request(method, url, options |> Dict.put(:direct, conn_pid))
       end
 
       def handle_response(response) do
