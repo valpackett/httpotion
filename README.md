@@ -30,7 +30,7 @@ $ mix deps.get
 
 ## Usage
 
-```iex
+```elixir
 iex> HTTPotion.start
 {:ok, [:asn1, :public_key, :ssl, :ibrowse, :httpotion]}
 iex> response = HTTPotion.get "http://localhost:4000"
@@ -64,7 +64,7 @@ defmodule GitHub do
 end
 ```
 
-```iex
+```elixir
 iex> GitHub.start
 {:ok, [:asn1, :public_key, :ssl, :ibrowse, :httpotion]}
 iex> GitHub.get("users/myfreeweb").body[:public_repos]
@@ -73,7 +73,7 @@ iex> GitHub.get("users/myfreeweb").body[:public_repos]
 
 And now with async!
 
-```iex
+```elixir
 iex> HTTPotion.get "http://floatboth.com", [], [stream_to: self]
 %HTTPotion.AsyncResponse{id: {1372,8757,656584}}
 iex> flush
