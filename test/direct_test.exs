@@ -74,7 +74,8 @@ defmodule DirectTest do
 
   test "exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
-      HTTPotion.get "localhost:1", [direct: :non_pooled_connection]
+      {:ok, pid} = HTTPotion.spawn_worker_process("localhost:1")
+      IO.puts HTTPotion.get("localhost:1/lolwat", [direct: pid])
     end
   end
 
