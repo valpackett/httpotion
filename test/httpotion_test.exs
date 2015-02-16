@@ -50,7 +50,7 @@ defmodule HTTPotionTest do
   end
 
   test "basic_auth option" do
-    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [ basic_auth: {'foo', 'bar'} ])
+    assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [ basic_auth: {"foo", "bar"} ])
   end
 
   test "ibrowse option" do
