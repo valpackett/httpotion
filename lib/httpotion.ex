@@ -51,6 +51,11 @@ defmodule HTTPotion.Base do
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
         end
 
+        if user_password = Dict.get(options, :basic_auth) do
+          {user, password} = user_password
+          ib_options = Dict.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
+        end
+
         %{
           method:     method,
           url:        url |> to_string |> process_url |> to_char_list,
