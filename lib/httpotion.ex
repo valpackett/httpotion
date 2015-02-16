@@ -96,6 +96,7 @@ defmodule HTTPotion.Base do
         * body - request body, binary string or char list
         * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
         * timeout - timeout in ms, integer
+        * basic_auth - basic auth credentials (eg. {"user", "password"})
         * stream_to - if you want to make an async request, the pid of the process
         * direct - if you want to use ibrowse's direct feature, the pid of
                    the worker spawned by spawn_worker_process or spawn_link_worker_process
