@@ -124,6 +124,13 @@ iex> HTTPotion.post "httpbin.org/post", [direct: worker_pid, stream_to: self, he
 [HTTPie]: https://github.com/jkbr/httpie
 [jsx]: https://github.com/talentdeficit/jsx
 
+## Contributing
+
+Please feel free to submit pull requests!
+Bugfixes and non-breaking improvements will definitely be accepted without any questions :-)
+
+By participating in this project you agree to follow the [Contributor Code of Conduct](http://contributor-covenant.org/version/1/0/0/).
+
 ## License
 
 Copyright © 2013-2015 [HTTPotion Contributors](https://github.com/myfreeweb/httpotion/graphs/contributors).
