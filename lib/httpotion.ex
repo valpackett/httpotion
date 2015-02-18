@@ -51,6 +51,11 @@ defmodule HTTPotion.Base do
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
         end
 
+        if user_password = Dict.get(options, :basic_auth) do
+          {user, password} = user_password
+          ib_options = Dict.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
+        end
+
         %{
           method:     method,
           url:        url |> to_string |> process_url |> to_char_list,
@@ -91,6 +96,7 @@ defmodule HTTPotion.Base do
         * body - request body, binary string or char list
         * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
         * timeout - timeout in ms, integer
+        * basic_auth - basic auth credentials (eg. {"user", "password"})
         * stream_to - if you want to make an async request, the pid of the process
         * direct - if you want to use ibrowse's direct feature, the pid of
                    the worker spawned by spawn_worker_process or spawn_link_worker_process

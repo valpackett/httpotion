@@ -39,6 +39,9 @@ iex> response = HTTPotion.post "https://httpbin.org/post", [body: "hello=world",
 iex> response = HTTPotion.request :propfind, "http://httpbin.org/post", [body: "I have no idea what I'm doing"]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 405}
 
+iex> response = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
+%HTTPotion.Response{body: "...", headers: ["Access-Control-Allow-Credentials": "true", ...], status_code: 200}
+
 iex> HTTPotion.get "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
