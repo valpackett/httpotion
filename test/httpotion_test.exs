@@ -87,15 +87,19 @@ defmodule HTTPotionTest do
       use HTTPotion.Base
 
       def process_url(url) do
-        send(self, :ok)
-
+        send(self, :processed_url)
         super(url)
+      end
+
+      def process_options(options) do
+        send(self, :processed_options)
+        super(options)
       end
     end
 
     TestClient.head("httpbin.org/get")
-
-    assert_received :ok
+    assert_received :processed_url
+    assert_received :processed_options
   end
 
   test "asynchronous request" do
