@@ -40,8 +40,11 @@ defmodule HTTPotion.Base do
         end) |> Enum.sort
       end
 
+      def process_options(options), do: options
+
       @spec process_arguments(atom, String.t, :dict.dict) :: :dict.dict
       def process_arguments(method, url, options) do
+        options    = process_options(options)
         body       = Dict.get(options, :body, "")
         headers    = Dict.get(options, :headers, [])
         timeout    = Dict.get(options, :timeout, 5000)
