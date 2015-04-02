@@ -42,7 +42,7 @@ defmodule HTTPotion.Base do
 
       def process_options(options), do: options
 
-      @spec process_arguments(atom, String.t, :dict.dict) :: :dict.dict
+      @spec process_arguments(atom, String.t, Dict.t) :: Dict.t
       def process_arguments(method, url, options) do
         options    = process_options(options)
         body       = Dict.get(options, :body, "")
@@ -106,7 +106,7 @@ defmodule HTTPotion.Base do
       Returns HTTPotion.Response or HTTPotion.AsyncResponse if successful.
       Raises  HTTPotion.HTTPError if failed.
       """
-      @spec request(atom, String.t, :dict.dict) :: HTTPotion.Response | HTTPotion.AsyncResponse
+      @spec request(atom, String.t, Dict.t) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
         if conn_pid = Dict.get(options, :direct) do
