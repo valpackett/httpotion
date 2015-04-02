@@ -14,6 +14,11 @@ Add HTTPotion **and ibrowse** to your project's dependencies in `mix.exs`:
       {:httpotion, "~> 2.0.0"}
     ]
   end
+  
+  def application do
+    [applications: [:httpotion]]
+    # Application dependency auto-starts it, otherwise: HTTPotion.start
+  end
 ```
 
 And fetch your project's dependencies:
