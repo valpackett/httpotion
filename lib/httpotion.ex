@@ -29,6 +29,7 @@ defmodule HTTPotion.Base do
       def process_response_body(body), do: IO.iodata_to_binary(body)
 
       def process_response_chunk(body = {:file, filename}), do: IO.iodata_to_binary(filename)
+      def process_response_chunk(chunk = {:error, error}), do: chunk
       def process_response_chunk(chunk), do: IO.iodata_to_binary(chunk)
 
       def process_response_headers(headers) do
