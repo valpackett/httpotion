@@ -3,7 +3,7 @@ defmodule HTTPotion.Mixfile do
 
   def project do
     [app: :httpotion,
-     version: "2.0.0",
+     version: "2.1.0",
      elixir:  "~> 1.0",
      description: description,
      deps: deps,
@@ -26,7 +26,7 @@ defmodule HTTPotion.Mixfile do
 
   defp package do
     [files: ["lib", "mix.exs", "README.md", "COPYING"],
-     contributors: ["Greg V", "Aleksei Magusev", "pragdave", "Adam Kittelson", "Ookami Kenrou", "Guillermo Iguaran", "Sumeet Singh", "parroty", "Everton Ribeiro", "Florian J. Breunig", "Arjan van der Gaag", "Joseph Wilk", "Aidan Steele", "Paulo Almeida", "Peter Hamilton", "Steve", "Wojciech Kaczmarek", "d0rc", "falood", "Dave Thomas", "Arkar Aung", "Eduardo Gurgel", "Eito Katagiri"],
+     contributors: ["Greg V", "Aleksei Magusev", "pragdave", "Adam Kittelson", "Ookami Kenrou", "Sumeet Singh", "Guillermo Iguaran", "jadlr", "parroty", "Daniel Berkompas", "Florian J. Breunig", "Gabe Kopley", "Arjan van der Gaag", "Joseph Wilk", "Aidan Steele", "Paulo Almeida", "Peter Hamilton", "Rachel Bowyer", "Steve", "Wojciech Kaczmarek", "d0rc", "falood", "Arkar Aung", "Dave Thomas", "Eduardo Gurgel", "Eito Katagiri", "Everton Ribeiro"],
      licenses: ["Do What the Fuck You Want to Public License, Version 2"],
      links: %{ "GitHub" => "https://github.com/myfreeweb/httpotion" }]
   end

@@ -11,7 +11,7 @@ Add HTTPotion **and ibrowse** to your project's dependencies in `mix.exs`:
   defp deps do
     [
       {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"},
-      {:httpotion, "~> 2.0.0"}
+      {:httpotion, "~> 2.1.0"}
     ]
   end
   
