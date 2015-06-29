@@ -53,6 +53,11 @@ defmodule HTTPotionTest do
     assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [ basic_auth: {"foo", "bar"} ])
   end
 
+  test "digest_auth option" do
+    response =  HTTPotion.get("http://jigsaw.w3.org/HTTP/Digest/", [ digest_auth: {"guest", "guest"} ])
+    assert String.contains?(response.body, "Your browser made it!")
+  end
+
   test "ibrowse option" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     assert_response HTTPotion.get("http://httpbin.org/basic-auth/foo/bar", [ ibrowse: ibrowse ])
