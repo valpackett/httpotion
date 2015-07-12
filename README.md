@@ -1,4 +1,4 @@
-# HTTPotion [![hex.pm version](https://img.shields.io/hexpm/v/httpotion.svg?style=flat)](https://hex.pm/packages/httpotion) [![hex.pm downloads](https://img.shields.io/hexpm/dt/httpotion.svg?style=flat)](https://hex.pm/packages/httpotion) [![Build Status](https://img.shields.io/travis/myfreeweb/httpotion.svg?style=flat)](https://travis-ci.org/myfreeweb/httpotion)  [![WTFPL](https://img.shields.io/badge/license-WTFPL-brightgreen.svg?style=flat)](https://www.tldrlegal.com/l/wtfpl)
+# HTTPotion [![hex.pm version](https://img.shields.io/hexpm/v/httpotion.svg?style=flat)](https://hex.pm/packages/httpotion) [![hex.pm downloads](https://img.shields.io/hexpm/dt/httpotion.svg?style=flat)](https://hex.pm/packages/httpotion) [![Build Status](https://img.shields.io/travis/myfreeweb/httpotion.svg?style=flat)](https://travis-ci.org/myfreeweb/httpotion) [![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
 
 HTTP client for [Elixir], based on [ibrowse].
 Continues the HTTPun tradition of [HTTParty], [HTTPretty], [HTTParrot] and [HTTPie].
@@ -141,12 +141,11 @@ iex> HTTPotion.post "httpbin.org/post", [direct: worker_pid, stream_to: self, he
 Please feel free to submit pull requests!
 Bugfixes and simple non-breaking improvements will be accepted without any questions :-)
 
-By participating in this project you agree to follow the [Contributor Code of Conduct](http://contributor-covenant.org/version/1/0/0/).
+By participating in this project you agree to follow the [Contributor Code of Conduct](http://contributor-covenant.org/version/1/1/0/).
+
+[The list of contributors is available on GitHub](https://github.com/myfreeweb/httpotion/graphs/contributors).
 
 ## License
 
-Copyright © 2013-2015 [HTTPotion Contributors](https://github.com/myfreeweb/httpotion/graphs/contributors).
-
-This work is free. You can redistribute it and/or modify it under the
-terms of the Do What The Fuck You Want To Public License, Version 2,
-as published by Sam Hocevar. See the COPYING file for more details.
+This is free and unencumbered software released into the public domain.  
+For more information, please refer to the `UNLICENSE` file or [unlicense.org](http://unlicense.org).

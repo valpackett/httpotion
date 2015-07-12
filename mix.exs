@@ -25,9 +25,9 @@ defmodule HTTPotion.Mixfile do
   end
 
   defp package do
-    [files: ["lib", "mix.exs", "README.md", "COPYING"],
+    [files: ["lib", "mix.exs", "README.md", "UNLICENSE"],
      contributors: ["Greg V", "Aleksei Magusev", "pragdave", "Adam Kittelson", "Ookami Kenrou", "Sumeet Singh", "Guillermo Iguaran", "jadlr", "parroty", "Daniel Berkompas", "Florian J. Breunig", "Gabe Kopley", "Arjan van der Gaag", "Joseph Wilk", "Aidan Steele", "Paulo Almeida", "Peter Hamilton", "Rachel Bowyer", "Steve", "Wojciech Kaczmarek", "d0rc", "falood", "Arkar Aung", "Dave Thomas", "Eduardo Gurgel", "Eito Katagiri", "Everton Ribeiro"],
-     licenses: ["Do What the Fuck You Want to Public License, Version 2"],
+     licenses: ["Unlicense", "Do What the Fuck You Want to Public License, Version 2"],
      links: %{ "GitHub" => "https://github.com/myfreeweb/httpotion" }]
   end
 end
