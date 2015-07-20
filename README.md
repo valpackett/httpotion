@@ -105,6 +105,8 @@ iex> flush
 %HTTPotion.AsyncEnd{id: {1372,8757,656584}}
 ```
 
+Note that instead of `process_response_body`, `process_response_chunk` is called on the chunks before sending them out to the receiver (the `stream_to` process).
+
 ### Direct access to ibrowse workers
 
 ibrowse allows you to use its separate worker processes directly.
