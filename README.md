@@ -74,7 +74,7 @@ defmodule GitHub do
   end
 
   def process_response_body(body) do
-    body |> to_string |> :jsx.decode
+    body |> IO.iodata_to_binary |> :jsx.decode
     |> Enum.map fn ({k, v}) -> { String.to_atom(k), v } end
     |> :orddict.from_list
   end
@@ -88,6 +88,8 @@ iex> GitHub.get("users/myfreeweb").body[:public_repos]
 
 Read the source to see all the hooks.
 It's not intimidating at all, pretty easy to read actually :-)
+
+Don't forget that `IO.iodata_to_binary` is called by default in `process_response_body` and `process_response_chunk`, you'll probably need to call it too.
 
 ### Asynchronous requests
 
