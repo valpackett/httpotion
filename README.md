@@ -10,7 +10,7 @@ Add HTTPotion **and ibrowse** to your project's dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.1"},
+      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2"},
       {:httpotion, "~> 2.1.0"}
     ]
   end
