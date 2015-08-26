@@ -47,6 +47,11 @@ iex> response = HTTPotion.request :propfind, "http://httpbin.org/post", [body: "
 iex> response = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
 %HTTPotion.Response{body: "...", headers: ["Access-Control-Allow-Credentials": "true", ...], status_code: 200}
 
+# Passing options to ibrowse (note that it usually takes char_lists, not elixir strings)
+# And no, you can't use that proxy :D
+iex> response = HTTPotion.get "http://ip6.me", [ ibrowse: [ proxy_host: 'fc81:6134:ba6c:8458:c99f:6c01:6472:8f1e', proxy_port: 8118 ] ]
+%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
+
 iex> HTTPotion.get "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
