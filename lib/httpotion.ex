@@ -1,18 +1,30 @@
 defmodule HTTPotion.Base do
+  @moduledoc """
+  The base module of HTTPotion.
+  
+  When used, it defines overridable functions, which allows you to make customized HTTP client modules (see the README).
+  It is used by the `HTTPotion` module to provide the a basic general-purpose client.
+  """
+
   defmacro __using__(_) do
     quote do
+
+      @doc "Ensures that HTTPotion and its dependencies are started."
       def start do
         :application.ensure_all_started(:httpotion)
       end
 
+      @doc "Starts a worker process for use with the `direct` option."
       def spawn_worker_process(url, options \\ []) do
         GenServer.start(:ibrowse_http_client, url |> process_url |> String.to_char_list, options)
       end
 
+      @doc "Starts a linked worker process for use with the `direct` option."
       def spawn_link_worker_process(url, options \\ []) do
         GenServer.start_link(:ibrowse_http_client, url |> process_url |> String.to_char_list, options)
       end
 
+      @doc "Stops a worker process started with `spawn_worker_process/2` or `spawn_link_worker_process/2`."
       def stop_worker_process(pid), do: :ibrowse.stop_worker_process(pid)
 
       def process_url(url) do
@@ -44,7 +56,7 @@ defmodule HTTPotion.Base do
       def process_options(options), do: options
 
       @spec process_arguments(atom, String.t, Dict.t) :: Dict.t
-      def process_arguments(method, url, options) do
+      defp process_arguments(method, url, options) do
         options    = process_options(options)
         body       = Dict.get(options, :body, "")
         headers    = Dict.get(options, :headers, [])
@@ -92,20 +104,25 @@ defmodule HTTPotion.Base do
 
       @doc """
       Sends an HTTP request.
+
       Args:
-        * method - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
-        * url - URL, binary string or char list
-        * options - orddict of options
+
+      * `method` - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
+      * `url` - URL, binary string or char list
+      * `options` - orddict of options
+
       Options:
-        * body - request body, binary string or char list
-        * headers - HTTP headers, orddict (eg. ["Accept": "application/json"])
-        * timeout - timeout in ms, integer
-        * basic_auth - basic auth credentials (eg. {"user", "password"})
-        * stream_to - if you want to make an async request, the pid of the process
-        * direct - if you want to use ibrowse's direct feature, the pid of
-                   the worker spawned by spawn_worker_process or spawn_link_worker_process
-      Returns HTTPotion.Response or HTTPotion.AsyncResponse if successful.
-      Raises  HTTPotion.HTTPError if failed.
+
+      * `body` - request body, binary string or char list
+      * `headers` - HTTP headers, orddict (eg. `["Accept": "application/json"]`)
+      * `timeout` - timeout in ms, integer
+      * `basic_auth` - basic auth credentials (eg. `{"user", "password"}`)
+      * `stream_to` - if you want to make an async request, the pid of the process
+      * `direct` - if you want to use ibrowse's direct feature, the pid of
+                  the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
+
+      Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.  
+      Raises  `HTTPotion.HTTPError` if failed.
       """
       @spec request(atom, String.t, Dict.t) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
       def request(method, url, options \\ []) do
@@ -117,12 +134,12 @@ defmodule HTTPotion.Base do
         end |> handle_response
       end
 
-      @doc "Deprecated form of request; body and headers are now options, see request/3."
+      @doc "Deprecated form of `request`; body and headers are now options, see `request/3`."
       def request(method, url, body, headers, options) do
         request(method, url, options |> Dict.put(:body, body) |> Dict.put(:headers, headers))
       end
 
-      @doc "Deprecated form of request with the direct option; body and headers are now options, see request/3."
+      @doc "Deprecated form of `request` with the `direct` option; body and headers are now options, see `request/3`."
       def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
         request(method, url, options |> Dict.put(:direct, conn_pid))
       end
@@ -156,12 +173,19 @@ defmodule HTTPotion.Base do
         end
       end
 
+      @doc "A shortcut for `request(:get, url, options)`."
       def get(url,     options \\ []), do: request(:get, url, options)
+      @doc "A shortcut for `request(:put, url, options)`."
       def put(url,     options \\ []), do: request(:put, url, options)
+      @doc "A shortcut for `request(:head, url, options)`."
       def head(url,    options \\ []), do: request(:head, url, options)
+      @doc "A shortcut for `request(:post, url, options)`."
       def post(url,    options \\ []), do: request(:post, url, options)
+      @doc "A shortcut for `request(:patch, url, options)`."
       def patch(url,   options \\ []), do: request(:patch, url, options)
+      @doc "A shortcut for `request(:delete, url, options)`."
       def delete(url,  options \\ []), do: request(:delete, url, options)
+      @doc "A shortcut for `request(:options, url, options)`."
       def options(url, options \\ []), do: request(:options, url, options)
 
       defoverridable Module.definitions_in(__MODULE__)
@@ -172,6 +196,10 @@ end
 defmodule HTTPotion do
   @moduledoc """
   The HTTP client for Elixir.
+
+  This module contains a basic general-purpose HTTP client.
+  Everything in this module is created with `use HTTPotion.Base`.
+  You can create your own customized client modules (see the README).
   """
 
   defmodule Response do
