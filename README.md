@@ -52,6 +52,9 @@ iex> response = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [basic_auth: {"f
 iex> response = HTTPotion.get "http://ip6.me", [ ibrowse: [ proxy_host: 'fc81:6134:ba6c:8458:c99f:6c01:6472:8f1e', proxy_port: 8118 ] ]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
+# The default timeout is 5000 ms, but can be changed
+iex> HTTPotion.get "http://example.com", [timeout: 10_000]
+
 iex> HTTPotion.get "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
