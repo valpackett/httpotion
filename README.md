@@ -31,7 +31,14 @@ $ mix deps.get
 
 Some basic examples:
 
+```
+Note: You can load HTTPotion into the Elixir REPL by 
+executing this command from the root of your project:
+$ iex -S mix
+```
+
 ```elixir
+
 iex> response = HTTPotion.get "httpbin.org/get"
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
