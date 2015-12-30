@@ -46,8 +46,8 @@ defmodule HTTPotion.Base do
 
       def process_response_headers(headers) do
         Enum.reduce(headers, [], fn { k, v }, acc ->
-          key = String.to_atom(to_string(k))
-          value = to_string(v)
+          key = k |> to_string |> String.to_atom
+          value = v |> to_string
 
           Dict.update(acc, key, value, &[value | List.wrap(&1)])
         end) |> Enum.sort
