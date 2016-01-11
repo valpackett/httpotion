@@ -1,7 +1,7 @@
 defmodule HTTPotion.Base do
   @moduledoc """
   The base module of HTTPotion.
-  
+
   When used, it defines overridable functions, which allows you to make customized HTTP client modules (see the README).
   It is used by the `HTTPotion` module to provide the a basic general-purpose client.
   """
@@ -44,6 +44,10 @@ defmodule HTTPotion.Base do
       def process_response_chunk(chunk = {:error, error}), do: chunk
       def process_response_chunk(chunk), do: IO.iodata_to_binary(chunk)
 
+      def process_response_location(response) do
+        process_response_headers(elem(response, 2))[:Location]
+      end
+
       def process_response_headers(headers) do
         Enum.reduce(headers, [], fn { k, v }, acc ->
           key = k |> to_string |> String.to_atom
@@ -51,6 +55,15 @@ defmodule HTTPotion.Base do
 
           Dict.update(acc, key, value, &[value | List.wrap(&1)])
         end) |> Enum.sort
+      end
+
+      def is_redirect(response) do
+        status_code = process_status_code(elem(response, 1))
+        status_code > 300 && status_code < 400
+      end
+
+      def response_ok(response) do
+        elem(response, 0) == :ok
       end
 
       def process_options(options), do: options
@@ -62,6 +75,7 @@ defmodule HTTPotion.Base do
         headers    = Dict.get(options, :headers, [])
         timeout    = Dict.get(options, :timeout, 5000)
         ib_options = Dict.get(options, :ibrowse, [])
+        follow_redirects = Dict.get(options, :follow_redirects, false)
 
         if stream_to = Dict.get(options, :stream_to) do
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
@@ -78,7 +92,8 @@ defmodule HTTPotion.Base do
           body:       body |> process_request_body,
           headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
           timeout:    timeout,
-          ib_options: ib_options
+          ib_options: ib_options,
+          follow_redirects: follow_redirects
         }
       end
 
@@ -120,18 +135,32 @@ defmodule HTTPotion.Base do
       * `stream_to` - if you want to make an async request, the pid of the process
       * `direct` - if you want to use ibrowse's direct feature, the pid of
                   the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
+      * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
 
-      Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.  
+      Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
       Raises  `HTTPotion.HTTPError` if failed.
       """
       @spec request(atom, String.t, Dict.t) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
-        if conn_pid = Dict.get(options, :direct) do
+        response = if conn_pid = Dict.get(options, :direct) do
           :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
         else
           :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
-        end |> handle_response
+        end
+
+        if response_ok(response) && is_redirect(response) && options[:follow_redirects] do
+          location = process_response_location(response)
+          next_url = if String.starts_with?(location, "http") do
+            location
+          else
+            Regex.named_captures(~r/(?<url>http:\/\/.*?)\//, url)["url"] <> location
+          end
+
+          request(method, next_url, options)
+        else
+          handle_response response
+        end
       end
 
       @doc "Deprecated form of `request`; body and headers are now options, see `request/3`."

@@ -111,6 +111,22 @@ defmodule HTTPotionTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  test "follow relative redirect" do
+    response = HTTPotion.get("http://httpbin.org/relative-redirect/1", [ follow_redirects: true ])
+
+    assert_response response
+    assert response.status_code == 200
+    assert response.headers[:Location] == nil
+  end
+
+  test "follow absolute redirect" do
+    response = HTTPotion.get("http://httpbin.org/absolute-redirect/1", [ follow_redirects: true ])
+
+    assert_response response
+    assert response.status_code == 200
+    assert response.headers[:Location] == nil
+  end
+
   defp assert_response(response, function \\ nil) do
     assert HTTPotion.Response.success?(response, :extra)
     assert response.headers[:Connection] == "keep-alive"
