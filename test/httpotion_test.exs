@@ -119,8 +119,24 @@ defmodule HTTPotionTest do
     assert response.headers[:Location] == nil
   end
 
+  test "follow relative https redirect" do
+    response = HTTPotion.get("https://httpbin.org/relative-redirect/1", [ follow_redirects: true ])
+
+    assert_response response
+    assert response.status_code == 200
+    assert response.headers[:Location] == nil
+  end
+
   test "follow absolute redirect" do
     response = HTTPotion.get("http://httpbin.org/absolute-redirect/1", [ follow_redirects: true ])
+
+    assert_response response
+    assert response.status_code == 200
+    assert response.headers[:Location] == nil
+  end
+
+  test "follow absolute https redirect" do
+    response = HTTPotion.get("https://httpbin.org/absolute-redirect/1", [ follow_redirects: true ])
 
     assert_response response
     assert response.status_code == 200

@@ -154,9 +154,8 @@ defmodule HTTPotion.Base do
           next_url = if String.starts_with?(location, "http") do
             location
           else
-            Regex.named_captures(~r/(?<url>http:\/\/.*?)\//, url)["url"] <> location
+            Regex.named_captures(~r/(?<url>https?:\/\/.*?)\//, url)["url"] <> location
           end
-
           request(method, next_url, options)
         else
           handle_response response
