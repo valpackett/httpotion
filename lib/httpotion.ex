@@ -71,6 +71,7 @@ defmodule HTTPotion.Base do
       @spec process_arguments(atom, String.t, Dict.t) :: Dict.t
       defp process_arguments(method, url, options) do
         options    = process_options(options)
+
         body       = Dict.get(options, :body, "")
         headers    = Dict.get(options, :headers, [])
         timeout    = Dict.get(options, :timeout, 5000)
@@ -78,7 +79,7 @@ defmodule HTTPotion.Base do
         follow_redirects = Dict.get(options, :follow_redirects, false)
 
         if stream_to = Dict.get(options, :stream_to) do
-          ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to]))
+          ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options]))
         end
 
         if user_password = Dict.get(options, :basic_auth) do
@@ -97,21 +98,33 @@ defmodule HTTPotion.Base do
         }
       end
 
-      def transformer(target) do
+      def transformer(target, method, url, options) do
         receive do
           { :ibrowse_async_headers, id, status_code, headers } ->
-            send(target, %HTTPotion.AsyncHeaders{
-              id: id,
-              status_code: process_status_code(status_code),
-              headers: process_response_headers(headers)
-            })
-            transformer(target)
+            if(process_status_code(status_code) in [302, 304]) do
+              location = process_response_headers(headers)[:Location]
+              response = request(method, normalize_location(location, url))
+
+              send(target, %HTTPotion.AsyncHeaders{
+                id: id,
+                status_code: response.status_code,
+                headers: response.headers
+              })
+            else
+              send(target, %HTTPotion.AsyncHeaders{
+                id: id,
+                status_code: process_status_code(status_code),
+                headers: process_response_headers(headers)
+              })
+            end
+
+            transformer(target, method, url, options)
           { :ibrowse_async_response, id, chunk } ->
             send(target, %HTTPotion.AsyncChunk{
               id: id,
               chunk: process_response_chunk(chunk)
             })
-            transformer(target)
+            transformer(target, method, url, options)
           { :ibrowse_async_response_end, id } ->
             send(target, %HTTPotion.AsyncEnd{ id: id })
         end
@@ -151,14 +164,18 @@ defmodule HTTPotion.Base do
 
         if response_ok(response) && is_redirect(response) && options[:follow_redirects] do
           location = process_response_location(response)
-          next_url = if String.starts_with?(location, "http") do
-            location
-          else
-            Regex.named_captures(~r/(?<url>https?:\/\/.*?)\//, url)["url"] <> location
-          end
+          next_url = normalize_location(location, url)
           request(method, next_url, options)
         else
           handle_response response
+        end
+      end
+
+      defp normalize_location(location, url) do
+        if String.starts_with?(location, "http") do
+          location
+        else
+          Regex.named_captures(~r/(?<url>https?:\/\/.*?)\//, url)["url"] <> location
         end
       end
 
