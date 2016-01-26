@@ -111,6 +111,15 @@ defmodule HTTPotionTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  test "asynchronous follow redirect" do
+    ibrowse = [basic_auth: {'foo', 'bar'}]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "http://httpbin.org/absolute-redirect/1", [stream_to: self, ibrowse: ibrowse]
+
+    assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
+    assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
+    assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
+  end
+
   test "follow relative redirect" do
     response = HTTPotion.get("http://httpbin.org/relative-redirect/1", [ follow_redirects: true ])
 
