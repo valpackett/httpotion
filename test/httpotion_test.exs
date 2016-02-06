@@ -111,6 +111,7 @@ defmodule HTTPotionTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  @tag skip: true
   test "asynchronous follow redirect" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "http://httpbin.org/absolute-redirect/1", [stream_to: self, ibrowse: ibrowse]
