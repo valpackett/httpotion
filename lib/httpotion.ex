@@ -103,22 +103,15 @@ defmodule HTTPotion.Base do
           { :ibrowse_async_headers, id, status_code, headers } ->
             if(process_status_code(status_code) in [302, 304]) do
               location = process_response_headers(headers)[:Location]
-              response = request(method, normalize_location(location, url))
-
-              send(target, %HTTPotion.AsyncHeaders{
-                id: id,
-                status_code: response.status_code,
-                headers: response.headers
-              })
+              request(method, normalize_location(location, url), options)
             else
               send(target, %HTTPotion.AsyncHeaders{
                 id: id,
                 status_code: process_status_code(status_code),
                 headers: process_response_headers(headers)
               })
+              transformer(target, method, url, options)
             end
-
-            transformer(target, method, url, options)
           { :ibrowse_async_response, id, chunk } ->
             send(target, %HTTPotion.AsyncChunk{
               id: id,
