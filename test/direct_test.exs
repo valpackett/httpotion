@@ -50,7 +50,8 @@ defmodule DirectTest do
   end
 
   test "headers" do
-    assert_response HTTPotion.head("http://httpbin.org/cookies/set?first=foo&second=bar", [direct: :non_pooled_connection]), fn(response) ->
+    options = [direct: :non_pooled_connection, query: %{first: "foo", second: "bar"}]
+    assert_response HTTPotion.head("http://httpbin.org/cookies/set", options), fn(response) ->
       assert_list response.headers[:"Set-Cookie"], ["first=foo; Path=/", "second=bar; Path=/"]
     end
   end

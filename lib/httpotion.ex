@@ -16,19 +16,39 @@ defmodule HTTPotion.Base do
 
       @doc "Starts a worker process for use with the `direct` option."
       def spawn_worker_process(url, options \\ []) do
-        GenServer.start(:ibrowse_http_client, url |> process_url |> String.to_char_list, options)
+        GenServer.start(:ibrowse_http_client, url |> process_url(options) |> String.to_char_list, options)
       end
 
       @doc "Starts a linked worker process for use with the `direct` option."
       def spawn_link_worker_process(url, options \\ []) do
-        GenServer.start_link(:ibrowse_http_client, url |> process_url |> String.to_char_list, options)
+        GenServer.start_link(:ibrowse_http_client, url |> process_url(options) |> String.to_char_list, options)
       end
 
       @doc "Stops a worker process started with `spawn_worker_process/2` or `spawn_link_worker_process/2`."
       def stop_worker_process(pid), do: :ibrowse.stop_worker_process(pid)
 
-      def process_url(url) do
-        unless url =~ ~r/\Ahttps?:\/\//, do: "http://" <> url, else: url
+      def process_url(url), do: url
+
+      def process_url(url, options) do
+        process_url(url)
+        |> prepend_protocol
+        |> append_query_string(options)
+      end
+
+      defp prepend_protocol(url) do
+        if url =~ ~r/\Ahttps?:\/\// do
+          url
+        else
+          "http://" <> url
+        end
+      end
+
+      defp append_query_string(url, options) do
+        if options[:query] do
+          url <> "?#{URI.encode_query(options[:query])}"
+        else
+          url
+        end
       end
 
       def process_request_body(body), do: body
@@ -89,7 +109,7 @@ defmodule HTTPotion.Base do
 
         %{
           method:     method,
-          url:        url |> to_string |> process_url |> to_char_list,
+          url:        url |> to_string |> process_url(options) |> to_char_list,
           body:       body |> process_request_body,
           headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
           timeout:    timeout,
