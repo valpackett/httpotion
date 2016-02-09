@@ -72,6 +72,21 @@ The `Response` is [a struct](http://elixir-lang.org/getting-started/structs.html
 
 *Note*: the API changed in 2.0.0, body and headers are options now!
 
+Available options and their default value:
+
+```elixir
+{
+  body: "",                # Request's body contents Ex.: "{json: \"string\"}"
+  headers: [],             # Request's headers. Ex.: ["Accepts" => "application/json"]
+  timeout: 5000,           # Timeout in milliseconds Ex: 5000
+  ibrowse: [],             # Ibrowse options
+  follow_redirects: false, # Specify wether redirects should or not be followed
+  stream_to: nil,          # Specify a process to stream the response to when performing async requests
+  basic_auth: nil,         # Basic auth credentials. Ex.: {"username", "password"}
+}
+
+```
+
 ### Metaprogramming magic
 
 You can extend `HTTPotion.Base` to make cool API clients or something (this example uses [jsx] for JSON):
