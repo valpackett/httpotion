@@ -76,6 +76,10 @@ defmodule HTTPotionTest do
     assert_response HTTPotion.head('httpbin.org/get')
   end
 
+  test "query string encoding" do
+    assert HTTPotion.process_url("http://example.com", [query: %{param: "value"}]) == "http://example.com?param=value"
+  end
+
   test "exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
       HTTPotion.get("localhost:1")
