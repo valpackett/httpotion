@@ -5,18 +5,17 @@ Continues the HTTPun tradition of [HTTParty], [HTTPretty], [HTTParrot] and [HTTP
 
 ## Installation
 
-Add HTTPotion **and ibrowse** to your project's dependencies in `mix.exs`:
+Add HTTPotion to your project's dependencies in `mix.exs`:
 
 ```elixir
   defp deps do
     [
-      {:ibrowse, github: "cmullaparthi/ibrowse", tag: "v4.1.2"},
       {:httpotion, "~> 2.1.0"}
     ]
   end
   
   def application do
-    [applications: [:httpotion]]
+    [ applications: [:httpotion] ]
     # Application dependency auto-starts it, otherwise: HTTPotion.start
   end
 ```
@@ -29,34 +28,32 @@ $ mix deps.get
 
 ## Usage
 
-Some basic examples:
+*Note*: You can load HTTPotion into the Elixir REPL by executing this command from the root of your project:
 
 ```
-Note: You can load HTTPotion into the Elixir REPL by 
-executing this command from the root of your project:
 $ iex -S mix
 ```
 
-```elixir
+Some basic examples:
 
+```elixir
 iex> response = HTTPotion.get "httpbin.org/get"
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
 iex> HTTPotion.Response.success?(response)
 true
 
-iex> response = HTTPotion.post "https://httpbin.org/post", [body: "hello=world", headers: ["User-Agent": "My App"]]
+iex> HTTPotion.post "https://httpbin.org/post", [body: "hello=world", headers: ["User-Agent": "My App"]]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
-iex> response = HTTPotion.request :propfind, "http://httpbin.org/post", [body: "I have no idea what I'm doing"]
+iex> HTTPotion.request :propfind, "http://httpbin.org/post", [body: "I have no idea what I'm doing"]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 405}
 
-iex> response = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
+iex> HTTPotion.get "httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
 %HTTPotion.Response{body: "...", headers: ["Access-Control-Allow-Credentials": "true", ...], status_code: 200}
 
 # Passing options to ibrowse (note that it usually takes char_lists, not elixir strings)
-# And no, you can't use that proxy :D
-iex> response = HTTPotion.get "http://ip6.me", [ ibrowse: [ proxy_host: 'fc81:6134:ba6c:8458:c99f:6c01:6472:8f1e', proxy_port: 8118 ] ]
+iex> HTTPotion.get "http://ip6.me", [ ibrowse: [ proxy_host: 'fc81:6134:ba6c:8458:c99f:6c01:6472:8f1e', proxy_port: 8118 ] ]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
 # The default timeout is 5000 ms, but can be changed
@@ -79,8 +76,8 @@ Available options and their default value:
   body: "",                # Request's body contents Ex.: "{json: \"string\"}"
   headers: [],             # Request's headers. Ex.: ["Accepts" => "application/json"]
   timeout: 5000,           # Timeout in milliseconds Ex: 5000
-  ibrowse: [],             # Ibrowse options
-  follow_redirects: false, # Specify wether redirects should or not be followed
+  ibrowse: [],             # ibrowse options
+  follow_redirects: false, # Specify whether redirects should be followed
   stream_to: nil,          # Specify a process to stream the response to when performing async requests
   basic_auth: nil,         # Basic auth credentials. Ex.: {"username", "password"}
 }
