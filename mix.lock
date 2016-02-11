@@ -1,2 +1,2 @@
 %{"ex_doc": {:hex, :ex_doc, "0.11.4"},
-  "ibrowse": {:git, "https://github.com/cmullaparthi/ibrowse.git", "ea3305d21f37eced4fac290f64b068e56df7de80", [tag: "v4.1.2"]}}
+  "ibrowse": {:hex, :ibrowse, "4.2.2"}}
