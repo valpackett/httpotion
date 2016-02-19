@@ -94,7 +94,7 @@ defmodule HTTPotion.Base do
 
         body       = Dict.get(options, :body, "")
         headers    = Dict.get(options, :headers, [])
-        timeout    = Dict.get(options, :timeout, 5000)
+        timeout    = Dict.get(options, :timeout, Application.get_env(:httpotion, :default_timeout))
         ib_options = Dict.get(options, :ibrowse, [])
         follow_redirects = Dict.get(options, :follow_redirects, false)
 
