@@ -92,11 +92,11 @@ defmodule HTTPotion.Base do
       defp process_arguments(method, url, options) do
         options    = process_options(options)
 
-        body       = Dict.get(options, :body, "")
-        headers    = Dict.get(options, :headers, [])
-        timeout    = Dict.get(options, :timeout, Application.get_env(:httpotion, :default_timeout))
-        ib_options = Dict.get(options, :ibrowse, [])
-        follow_redirects = Dict.get(options, :follow_redirects, false)
+        body       = Keyword.get(options, :body, "")
+        headers    = Keyword.merge Application.get_env(:httpotion, :default_headers, []), Keyword.get(options, :headers, [])
+        timeout    = Keyword.get(options, :timeout, Application.get_env(:httpotion, :default_timeout, 5000))
+        ib_options = Keyword.merge Application.get_env(:httpotion, :default_ibrowse, []), Keyword.get(options, :ibrowse, [])
+        follow_redirects = Keyword.get(options, :follow_redirects, Application.get_env(:httpotion, :default_follow_redirects, false))
 
         if stream_to = Dict.get(options, :stream_to) do
           ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options]))
