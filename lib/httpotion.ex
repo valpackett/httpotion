@@ -69,12 +69,13 @@ defmodule HTTPotion.Base do
       end
 
       def process_response_headers(headers) do
-        Enum.reduce(headers, [], fn { k, v }, acc ->
-          key = k |> to_string |> String.to_atom
+        headers_list = Enum.reduce(headers, [], fn { k, v }, acc ->
+          key = k |> to_string |> String.downcase |> String.to_atom
           value = v |> to_string
 
           Dict.update(acc, key, value, &[value | List.wrap(&1)])
         end) |> Enum.sort
+        %HTTPotion.Headers{hdrs: headers_list}
       end
 
       def is_redirect(response) do
@@ -270,6 +271,27 @@ defmodule HTTPotion do
     def success?(%__MODULE__{ status_code: code } = response, :extra) do
       success?(response) or code in [302, 304]
     end
+  end
+
+  defmodule Headers do
+    defstruct hdrs: []
+
+    defp normalized_key(key) do
+      key |> to_string |> String.downcase |> String.to_atom
+    end
+
+    def fetch(%Headers{hdrs: headers}, key) do
+      Access.fetch(headers, normalized_key(key))
+    end
+
+    def get_and_update(%Headers{hdrs: headers}, key, acc) do
+      updated = Access.get_and_update(headers, normalized_key(key), acc)
+      %Headers{hdrs: updated}
+    end
+  end
+  defimpl Access, for: Headers do
+    def fetch(headers, key), do: Headers.fetch(headers, key)
+    def get_and_update(headers, key, acc), do: Headers.get_and_update(headers, key, acc)
   end
 
   defmodule AsyncResponse do

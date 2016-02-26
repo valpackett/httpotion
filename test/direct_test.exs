@@ -105,6 +105,12 @@ defmodule DirectTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  test "headers are case insensitive" do
+    rsp = HTTPotion.get("httpbin.org", [direct: :non_pooled_connection])
+    assert rsp.headers[:"content-type"] == rsp.headers[:"cOntent-Type"]
+    assert rsp.headers[:"content-type"] != nil
+  end
+
   defp assert_response(response, function \\ nil) do
     assert HTTPotion.Response.success?(response, :extra)
     assert response.headers[:Connection] == "keep-alive"
