@@ -73,7 +73,7 @@ defmodule HTTPotion.Base do
           key = k |> to_string |> String.downcase |> String.to_atom
           value = v |> to_string
 
-          Dict.update(acc, key, value, &[value | List.wrap(&1)])
+          Keyword.update(acc, key, value, &[value | List.wrap(&1)])
         end) |> Enum.sort
         %HTTPotion.Headers{hdrs: headers_list}
       end
@@ -89,7 +89,7 @@ defmodule HTTPotion.Base do
 
       def process_options(options), do: options
 
-      @spec process_arguments(atom, String.t, Dict.t) :: Dict.t
+      @spec process_arguments(atom, String.t, [{atom(), any()}]) :: %{}
       defp process_arguments(method, url, options) do
         options    = process_options(options)
 
@@ -99,13 +99,13 @@ defmodule HTTPotion.Base do
         ib_options = Keyword.merge Application.get_env(:httpotion, :default_ibrowse, []), Keyword.get(options, :ibrowse, [])
         follow_redirects = Keyword.get(options, :follow_redirects, Application.get_env(:httpotion, :default_follow_redirects, false))
 
-        if stream_to = Dict.get(options, :stream_to) do
-          ib_options = Dict.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options]))
+        if stream_to = Keyword.get(options, :stream_to) do
+          ib_options = Keyword.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options]))
         end
 
-        if user_password = Dict.get(options, :basic_auth) do
+        if user_password = Keyword.get(options, :basic_auth) do
           {user, password} = user_password
-          ib_options = Dict.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
+          ib_options = Keyword.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
         end
 
         %{
@@ -167,10 +167,10 @@ defmodule HTTPotion.Base do
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
       Raises  `HTTPotion.HTTPError` if failed.
       """
-      @spec request(atom, String.t, Dict.t) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+      @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
-        response = if conn_pid = Dict.get(options, :direct) do
+        response = if conn_pid = Keyword.get(options, :direct) do
           :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
         else
           :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
@@ -195,12 +195,12 @@ defmodule HTTPotion.Base do
 
       @doc "Deprecated form of `request`; body and headers are now options, see `request/3`."
       def request(method, url, body, headers, options) do
-        request(method, url, options |> Dict.put(:body, body) |> Dict.put(:headers, headers))
+        request(method, url, options |> Keyword.put(:body, body) |> Keyword.put(:headers, headers))
       end
 
       @doc "Deprecated form of `request` with the `direct` option; body and headers are now options, see `request/3`."
       def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
-        request(method, url, options |> Dict.put(:direct, conn_pid))
+        request(method, url, options |> Keyword.put(:direct, conn_pid))
       end
 
       defp error_to_string(error) do
@@ -285,8 +285,8 @@ defmodule HTTPotion do
     end
 
     def get_and_update(%Headers{hdrs: headers}, key, acc) do
-      updated = Access.get_and_update(headers, normalized_key(key), acc)
-      %Headers{hdrs: updated}
+      {val, updated} = Access.get_and_update(headers, normalized_key(key), acc)
+      {val, %Headers{hdrs: updated}}
     end
   end
   defimpl Access, for: Headers do
