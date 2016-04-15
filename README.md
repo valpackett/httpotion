@@ -65,6 +65,8 @@ iex> HTTPotion.get "http://localhost:1"
 
 The `Response` is [a struct](http://elixir-lang.org/getting-started/structs.html) – you access its fields like this: `response.body`.
 
+`response.headers` is a `HTTPotion.Headers` struct that provides case-insensitive access (so you can use `response.headers[:authorization]` and it doesn't matter if the server returned `AuThOrIZatIOn` or something).
+
 `HTTPError` is [an exception](http://elixir-lang.org/getting-started/try-catch-and-rescue.html) that happens when the request fails.
 
 *Note*: the API changed in 2.0.0, body and headers are options now!
@@ -170,7 +172,6 @@ iex> HTTPotion.post "httpbin.org/post", [direct: worker_pid, stream_to: self, he
 ## Contributing
 
 Please feel free to submit pull requests!
-Bugfixes and simple non-breaking improvements will be accepted without any questions :-)
 
 By participating in this project you agree to follow the [Contributor Code of Conduct](http://contributor-covenant.org/version/1/1/0/).
 
