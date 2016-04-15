@@ -289,10 +289,6 @@ defmodule HTTPotion do
       {val, %Headers{hdrs: updated}}
     end
   end
-  defimpl Access, for: Headers do
-    def fetch(headers, key), do: Headers.fetch(headers, key)
-    def get_and_update(headers, key, acc), do: Headers.get_and_update(headers, key, acc)
-  end
 
   defmodule AsyncResponse do
     defstruct id: nil

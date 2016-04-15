@@ -6,7 +6,7 @@ defmodule HTTPotion.Mixfile do
       name: "httpotion",
       source_url: "https://github.com/myfreeweb/httpotion",
       version: "2.2.2",
-      elixir:  "~> 1.0",
+      elixir:  "~> 1.2",
       docs: [ extras: ["README.md", "CODE_OF_CONDUCT.md"] ],
       description: description,
       deps: deps,
