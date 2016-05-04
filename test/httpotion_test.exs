@@ -90,6 +90,16 @@ defmodule HTTPotionTest do
       HTTPotion.put!("localhost:1")
     end
   end
+  test "delete exception" do
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      HTTPotion.delete!("localhost:1")
+    end
+  end
+  test "post exception" do
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      HTTPotion.post!("localhost:1")
+    end
+  end
 
   test "extension" do
     defmodule TestClient do
