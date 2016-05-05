@@ -234,7 +234,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:get, url, options)`."
       def get(url,     options \\ []), do: request(:get, url, options)
-      @doc "A shortcut for `request(:get, url, options)` that raises error."
+      @doc "A shortcut for `request(:get, url, options) `that raises `HTTPotion.HTTPError`."
       def get!(url,     options \\ []) do
         case request(:get, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -245,7 +245,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:put, url, options)`."
       def put(url,     options \\ []), do: request(:put, url, options)
-      @doc "A shortcut for `request(:put, url, options)`."
+      @doc "A shortcut for `request(:put, url, options) `that raises `HTTPotion.HTTPError`."
       def put!(url,     options \\ []) do
         case request(:put, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -256,7 +256,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:head, url, options)`."
       def head(url,    options \\ []), do: request(:head, url, options)
-      @doc "A shortcut for `request(:head, url, options)` that raises `HTTPotion.HTTPError`."
+      @doc "A shortcut for `request(:head, url, options) `that raises `HTTPotion.HTTPError`."
       def head!(url,    options \\ []) do
         case request(:head, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -267,7 +267,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:post, url, options)`."
       def post(url,    options \\ []), do: request(:post, url, options)
-      @doc "A shortcut for `request(:post, url, options)` that raises `HTTPotion.HTTPError`."
+      @doc "A shortcut for `request(:post, url, options) `that raises `HTTPotion.HTTPError`."
       def post!(url,    options \\ []) do
         case request(:post, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -278,7 +278,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:patch, url, options)`."
       def patch(url,   options \\ []), do: request(:patch, url, options)
-      @doc "A shortcut for `request(:patch, url, options)`."
+      @doc "A shortcut for `request(:patch, url, options) `that raises `HTTPotion.HTTPError`."
       def patch!(url,   options \\ []) do
         case request(:patch, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -289,7 +289,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:delete, url, options)`."
       def delete(url,  options \\ []), do: request(:delete, url, options)
-      @doc "A shortcut for `request(:delete, url, options)`."
+      @doc "A shortcut for `request(:delete, url, options) `that raises `HTTPotion.HTTPError`."
       def delete!(url,  options \\ []) do
         case request(:delete, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -300,7 +300,7 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:options, url, options)`."
       def options(url, options \\ []), do: request(:options, url, options)
-      @doc "A shortcut for `request(:options, url, options)`."
+      @doc "A shortcut for `request(:options, url, options) `that raises `HTTPotion.HTTPError`."
       def options!(url, options \\ []) do
         case request(:options, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
