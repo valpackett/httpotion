@@ -165,9 +165,9 @@ defmodule HTTPotion.Base do
       * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
 
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
-      Raises  `HTTPotion.HTTPError` if failed.
+      Returns `HTTPotion.ErrorResponse` if failed.
       """
-      @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+      @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
         response = if conn_pid = Keyword.get(options, :direct) do
@@ -182,6 +182,18 @@ defmodule HTTPotion.Base do
           request(method, next_url, options)
         else
           handle_response response
+        end
+      end
+
+      @doc """
+      Like `request`, but raises  `HTTPotion.HTTPError` if failed.
+      """
+      @spec request!(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+      def request!(method, url, options \\ []) do
+        case request(method, url, options) do
+          %HTTPotion.ErrorResponse{message: message} ->
+            raise HTTPotion.HTTPError, message: message
+          response -> response
         end
       end
 
@@ -224,28 +236,48 @@ defmodule HTTPotion.Base do
           { :ibrowse_req_id, id } ->
             %HTTPotion.AsyncResponse{ id: id }
           { :error, { :conn_failed, { :error, reason }}} ->
-            raise HTTPotion.HTTPError, message: error_to_string(reason)
+            %HTTPotion.ErrorResponse{ message: error_to_string(reason)}
           { :error, :conn_failed } ->
-            raise HTTPotion.HTTPError, message: "conn_failed"
+            %HTTPotion.ErrorResponse{ message: "conn_failed"}
           { :error, reason } ->
-            raise HTTPotion.HTTPError, message: error_to_string(reason)
+            %HTTPotion.ErrorResponse{ message: error_to_string(reason)}
         end
       end
 
       @doc "A shortcut for `request(:get, url, options)`."
       def get(url,     options \\ []), do: request(:get, url, options)
+      @doc "A shortcut for `request!(:get, url, options)`."
+      def get!(url,     options \\ []), do: request!(:get, url, options)
+
       @doc "A shortcut for `request(:put, url, options)`."
       def put(url,     options \\ []), do: request(:put, url, options)
+      @doc "A shortcut for `request!(:put, url, options)`."
+      def put!(url,     options \\ []), do: request!(:put, url, options)
+
       @doc "A shortcut for `request(:head, url, options)`."
       def head(url,    options \\ []), do: request(:head, url, options)
+      @doc "A shortcut for `request!(:head, url, options)`."
+      def head!(url,    options \\ []), do: request!(:head, url, options)
+
       @doc "A shortcut for `request(:post, url, options)`."
       def post(url,    options \\ []), do: request(:post, url, options)
+      @doc "A shortcut for `request!(:post, url, options)`."
+      def post!(url,    options \\ []), do: request!(:post, url, options)
+
       @doc "A shortcut for `request(:patch, url, options)`."
       def patch(url,   options \\ []), do: request(:patch, url, options)
+      @doc "A shortcut for `request!(:patch, url, options)`."
+      def patch!(url,   options \\ []), do: request!(:patch, url, options)
+
       @doc "A shortcut for `request(:delete, url, options)`."
       def delete(url,  options \\ []), do: request(:delete, url, options)
+      @doc "A shortcut for `request!(:delete, url, options)`."
+      def delete!(url,  options \\ []), do: request!(:delete, url, options)
+
       @doc "A shortcut for `request(:options, url, options)`."
       def options(url, options \\ []), do: request(:options, url, options)
+      @doc "A shortcut for `request!(:options, url, options)`."
+      def options!(url, options \\ []), do: request!(:options, url, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end
@@ -267,10 +299,21 @@ defmodule HTTPotion do
     def success?(%__MODULE__{ status_code: code }) do
       code in 200..299
     end
+    def success?(_unknown) do
+      false
+    end
 
     def success?(%__MODULE__{ status_code: code } = response, :extra) do
       success?(response) or code in [302, 304]
     end
+    def success?(_unknown, _extra) do
+      false
+    end
+
+  end
+
+  defmodule ErrorResponse do
+    defstruct message: nil
   end
 
   defmodule Headers do

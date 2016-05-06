@@ -59,7 +59,12 @@ iex> HTTPotion.get "http://ip6.me", [ ibrowse: [ proxy_host: 'fc81:6134:ba6c:845
 # The default timeout is 5000 ms, but can be changed
 iex> HTTPotion.get "http://example.com", [timeout: 10_000]
 
+# If there is an error a `HTTPotion.ErrorResponse` is returned
 iex> HTTPotion.get "http://localhost:1"
+%HTTPotion.ErrorResponse{message: "econnrefused"}
+
+# You can also raise `HTTPError` with the `bang` version of request
+iex> HTTPotion.get! "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
 

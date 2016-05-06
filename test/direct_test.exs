@@ -76,7 +76,7 @@ defmodule DirectTest do
   test "exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
       {:ok, pid} = HTTPotion.spawn_worker_process("localhost:1")
-      IO.puts HTTPotion.get("localhost:1/lolwat", [direct: pid])
+      IO.puts HTTPotion.get!("localhost:1/lolwat", [direct: pid])
     end
   end
 

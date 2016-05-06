@@ -80,9 +80,24 @@ defmodule HTTPotionTest do
     assert HTTPotion.process_url("http://example.com", [query: %{param: "value"}]) == "http://example.com?param=value"
   end
 
-  test "exception" do
+  test "get exception" do
     assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
-      HTTPotion.get("localhost:1")
+      HTTPotion.get!("localhost:1")
+    end
+  end
+  test "put exception" do
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      HTTPotion.put!("localhost:1")
+    end
+  end
+  test "delete exception" do
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      HTTPotion.delete!("localhost:1")
+    end
+  end
+  test "post exception" do
+    assert_raise HTTPotion.HTTPError, "econnrefused", fn ->
+      HTTPotion.post!("localhost:1")
     end
   end
 
