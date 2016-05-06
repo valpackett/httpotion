@@ -167,7 +167,7 @@ defmodule HTTPotion.Base do
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
       Returns `HTTPotion.ErrorResponse` if failed.
       """
-      @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+      @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
         response = if conn_pid = Keyword.get(options, :direct) do
@@ -184,48 +184,16 @@ defmodule HTTPotion.Base do
           handle_response response
         end
       end
+
       @doc """
-      Sends an HTTP request.
-
-      Args:
-
-      * `method` - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
-      * `url` - URL, binary string or char list
-      * `options` - orddict of options
-
-      Options:
-
-      * `body` - request body, binary string or char list
-      * `headers` - HTTP headers, orddict (eg. `["Accept": "application/json"]`)
-      * `timeout` - timeout in ms, integer
-      * `basic_auth` - basic auth credentials (eg. `{"user", "password"}`)
-      * `stream_to` - if you want to make an async request, the pid of the process
-      * `direct` - if you want to use ibrowse's direct feature, the pid of
-                  the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
-      * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
-
-      Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
-      Raises  `HTTPotion.HTTPError` if failed.
+      Like `request`, but raises  `HTTPotion.HTTPError` if failed.
       """
       @spec request!(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
       def request!(method, url, options \\ []) do
-        args = process_arguments(method, url, options)
-        response = if conn_pid = Keyword.get(options, :direct) do
-          :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
-        else
-          :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
-        end
-
-        if response_ok(response) && is_redirect(response) && options[:follow_redirects] do
-          location = process_response_location(response)
-          next_url = normalize_location(location, url)
-          request(method, next_url, options)
-        else
-          case handle_response(response) do
-            %HTTPotion.ErrorResponse{message: message} ->
-              raise HTTPotion.HTTPError, message: message
-              response -> response
-          end
+        case request(method, url, options) do
+          %HTTPotion.ErrorResponse{message: message} ->
+            raise HTTPotion.HTTPError, message: message
+          response -> response
         end
       end
 
