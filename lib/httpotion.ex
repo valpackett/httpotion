@@ -165,7 +165,7 @@ defmodule HTTPotion.Base do
       * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
 
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
-      Raises  `HTTPotion.HTTPError` if failed.
+      Returns `HTTPotion.ErrorResponse` if failed.
       """
       @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
       def request(method, url, options \\ []) do
@@ -182,6 +182,50 @@ defmodule HTTPotion.Base do
           request(method, next_url, options)
         else
           handle_response response
+        end
+      end
+      @doc """
+      Sends an HTTP request.
+
+      Args:
+
+      * `method` - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
+      * `url` - URL, binary string or char list
+      * `options` - orddict of options
+
+      Options:
+
+      * `body` - request body, binary string or char list
+      * `headers` - HTTP headers, orddict (eg. `["Accept": "application/json"]`)
+      * `timeout` - timeout in ms, integer
+      * `basic_auth` - basic auth credentials (eg. `{"user", "password"}`)
+      * `stream_to` - if you want to make an async request, the pid of the process
+      * `direct` - if you want to use ibrowse's direct feature, the pid of
+                  the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
+      * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
+
+      Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
+      Raises  `HTTPotion.HTTPError` if failed.
+      """
+      @spec request!(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+      def request!(method, url, options \\ []) do
+        args = process_arguments(method, url, options)
+        response = if conn_pid = Keyword.get(options, :direct) do
+          :ibrowse.send_req_direct(conn_pid, args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
+        else
+          :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
+        end
+
+        if response_ok(response) && is_redirect(response) && options[:follow_redirects] do
+          location = process_response_location(response)
+          next_url = normalize_location(location, url)
+          request(method, next_url, options)
+        else
+          case handle_response(response) do
+            %HTTPotion.ErrorResponse{message: message} ->
+              raise HTTPotion.HTTPError, message: message
+              response -> response
+          end
         end
       end
 
@@ -234,81 +278,38 @@ defmodule HTTPotion.Base do
 
       @doc "A shortcut for `request(:get, url, options)`."
       def get(url,     options \\ []), do: request(:get, url, options)
-      @doc "A shortcut for `request(:get, url, options) `that raises `HTTPotion.HTTPError`."
-      def get!(url,     options \\ []) do
-        case request(:get, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
+      @doc "A shortcut for `request!(:get, url, options)`."
+      def get!(url,     options \\ []), do: request!(:get, url, options)
 
       @doc "A shortcut for `request(:put, url, options)`."
       def put(url,     options \\ []), do: request(:put, url, options)
-      @doc "A shortcut for `request(:put, url, options) `that raises `HTTPotion.HTTPError`."
-      def put!(url,     options \\ []) do
-        case request(:put, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
+      @doc "A shortcut for `request!(:put, url, options)`."
+      def put!(url,     options \\ []), do: request!(:put, url, options)
 
       @doc "A shortcut for `request(:head, url, options)`."
       def head(url,    options \\ []), do: request(:head, url, options)
-      @doc "A shortcut for `request(:head, url, options) `that raises `HTTPotion.HTTPError`."
-      def head!(url,    options \\ []) do
-        case request(:head, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
+      @doc "A shortcut for `request!(:head, url, options)`."
+      def head!(url,    options \\ []), do: request!(:head, url, options)
 
       @doc "A shortcut for `request(:post, url, options)`."
       def post(url,    options \\ []), do: request(:post, url, options)
-      @doc "A shortcut for `request(:post, url, options) `that raises `HTTPotion.HTTPError`."
-      def post!(url,    options \\ []) do
-        case request(:post, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
+      @doc "A shortcut for `request!(:post, url, options)`."
+      def post!(url,    options \\ []), do: request!(:post, url, options)
 
       @doc "A shortcut for `request(:patch, url, options)`."
       def patch(url,   options \\ []), do: request(:patch, url, options)
-      @doc "A shortcut for `request(:patch, url, options) `that raises `HTTPotion.HTTPError`."
-      def patch!(url,   options \\ []) do
-        case request(:patch, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
+      @doc "A shortcut for `request!(:patch, url, options)`."
+      def patch!(url,   options \\ []), do: request!(:patch, url, options)
 
       @doc "A shortcut for `request(:delete, url, options)`."
       def delete(url,  options \\ []), do: request(:delete, url, options)
-      @doc "A shortcut for `request(:delete, url, options) `that raises `HTTPotion.HTTPError`."
-      def delete!(url,  options \\ []) do
-        case request(:delete, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
+      @doc "A shortcut for `request!(:delete, url, options)`."
+      def delete!(url,  options \\ []), do: request!(:delete, url, options)
 
       @doc "A shortcut for `request(:options, url, options)`."
       def options(url, options \\ []), do: request(:options, url, options)
-      @doc "A shortcut for `request(:options, url, options) `that raises `HTTPotion.HTTPError`."
-      def options!(url, options \\ []) do
-        case request(:options, url, options) do
-          %HTTPotion.ErrorResponse{message: message} ->
-            raise HTTPotion.HTTPError, message: message
-          response -> response
-        end
-      end
-
+      @doc "A shortcut for `request!(:options, url, options)`."
+      def options!(url, options \\ []), do: request!(:options, url, options)
 
       defoverridable Module.definitions_in(__MODULE__)
     end
