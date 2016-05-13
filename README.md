@@ -13,7 +13,7 @@ Add HTTPotion to your project's dependencies in `mix.exs`:
       {:httpotion, "~> 2.2.0"}
     ]
   end
-  
+
   def application do
     [ applications: [:httpotion] ]
     # Application dependency auto-starts it, otherwise: HTTPotion.start
@@ -42,6 +42,10 @@ iex> response = HTTPotion.get "httpbin.org/get"
 
 iex> HTTPotion.Response.success?(response)
 true
+
+# HTTPotion also supports querystrings like
+iex> HTTPotion.get("httpbin.org/get", query: %{page: 2})
+%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
 iex> HTTPotion.post "https://httpbin.org/post", [body: "hello=world", headers: ["User-Agent": "My App"]]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
