@@ -47,7 +47,9 @@ true
 iex> HTTPotion.get("httpbin.org/get", query: %{page: 2})
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
-iex> HTTPotion.post "https://httpbin.org/post", [body: "hello=world", headers: ["User-Agent": "My App"]]
+# Form data
+iex> HTTPotion.post "https://httpbin.org/post", [body: "hello=" <> URI.encode_www_form("w o r l d !!"),
+  headers: ["User-Agent": "My App", "Content-Type": "application/x-www-form-urlencoded"]]
 %HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
 
 iex> HTTPotion.request :propfind, "http://httpbin.org/post", [body: "I have no idea what I'm doing"]
@@ -79,9 +81,6 @@ The `Response` is [a struct](http://elixir-lang.org/getting-started/structs.html
 `HTTPError` is [an exception](http://elixir-lang.org/getting-started/try-catch-and-rescue.html) that happens when the request fails.
 
 *Note*: the API changed in 2.0.0, body and headers are options now!
-
-for post http request with form data , you need to set header "Content-Type": "application/x-www-form-urlencoded"
-and form_value = URI.encode_www_form(value you want to send.) body = "To="<>form_value
 
 Available options and their default value:
 
