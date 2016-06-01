@@ -80,6 +80,9 @@ The `Response` is [a struct](http://elixir-lang.org/getting-started/structs.html
 
 *Note*: the API changed in 2.0.0, body and headers are options now!
 
+for post http request with form data , you need to set header "Content-Type": "application/x-www-form-urlencoded"
+and form_value = URI.encode_www_form(value you want to send.) body = "To="<>form_value
+
 Available options and their default value:
 
 ```elixir
