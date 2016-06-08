@@ -10,7 +10,7 @@ Add HTTPotion to your project's dependencies in `mix.exs`:
 ```elixir
   defp deps do
     [
-      {:httpotion, "~> 2.2.0"}
+      {:httpotion, "~> 3.0.0"}
     ]
   end
 
