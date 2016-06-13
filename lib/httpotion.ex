@@ -99,13 +99,12 @@ defmodule HTTPotion.Base do
         ib_options = Keyword.merge Application.get_env(:httpotion, :default_ibrowse, []), Keyword.get(options, :ibrowse, [])
         follow_redirects = Keyword.get(options, :follow_redirects, Application.get_env(:httpotion, :default_follow_redirects, false))
 
-        if stream_to = Keyword.get(options, :stream_to) do
-          ib_options = Keyword.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options]))
-        end
-
-        if user_password = Keyword.get(options, :basic_auth) do
+        ib_options = if stream_to = Keyword.get(options, :stream_to), do: Keyword.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options])), else: ib_options
+        ib_options = if user_password = Keyword.get(options, :basic_auth) do
           {user, password} = user_password
-          ib_options = Keyword.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
+          Keyword.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
+        else
+          ib_options
         end
 
         %{
