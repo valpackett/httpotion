@@ -8,9 +8,9 @@ defmodule HTTPotion.Mixfile do
       version: "3.0.0",
       elixir:  "~> 1.1",
       docs: [ extras: ["README.md", "CODE_OF_CONDUCT.md"] ],
-      description: description,
-      deps: deps,
-      package: package ]
+      description: description(),
+      deps: deps(),
+      package: package() ]
   end
 
   def application do
