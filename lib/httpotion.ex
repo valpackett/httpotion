@@ -69,12 +69,12 @@ defmodule HTTPotion.Base do
       end
 
       def process_response_headers(headers) do
-        headers_list = Enum.reduce(headers, [], fn { k, v }, acc ->
-          key = k |> to_string |> String.downcase |> String.to_atom
+        headers_list = Enum.reduce(headers, %{}, fn { k, v }, acc ->
+          key = k |> to_string |> String.downcase
           value = v |> to_string
 
-          Keyword.update(acc, key, value, &[value | List.wrap(&1)])
-        end) |> Enum.sort
+          Map.update(acc, key, value, &[value | List.wrap(&1)])
+        end)
         %HTTPotion.Headers{hdrs: headers_list}
       end
 
@@ -316,18 +316,18 @@ defmodule HTTPotion do
   end
 
   defmodule Headers do
-    defstruct hdrs: []
+    defstruct hdrs: %{}
 
     defp normalized_key(key) do
-      key |> to_string |> String.downcase |> String.to_atom
+      key |> to_string |> String.downcase
     end
 
     def fetch(%Headers{hdrs: headers}, key) do
-      Access.fetch(headers, normalized_key(key))
+      Map.fetch(headers, normalized_key(key))
     end
 
     def get_and_update(%Headers{hdrs: headers}, key, acc) do
-      {val, updated} = Access.get_and_update(headers, normalized_key(key), acc)
+      {val, updated} = Map.get_and_update(headers, normalized_key(key), acc)
       {val, %Headers{hdrs: updated}}
     end
   end
@@ -337,7 +337,7 @@ defmodule HTTPotion do
   end
 
   defmodule AsyncHeaders do
-    defstruct id: nil, status_code: nil, headers: []
+    defstruct id: nil, status_code: nil, headers: %{}
   end
 
   defmodule AsyncChunk do
