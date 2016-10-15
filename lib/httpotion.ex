@@ -83,6 +83,15 @@ defmodule HTTPotion.Base do
         status_code > 300 && status_code < 400
       end
 
+      def redirect_method(response, method) do
+        case process_status_code(elem(response, 1)) do
+          303 ->
+            :get
+          _ ->
+            method
+        end
+      end
+
       def response_ok(response) do
         elem(response, 0) == :ok
       end
@@ -178,7 +187,8 @@ defmodule HTTPotion.Base do
         if response_ok(response) && is_redirect(response) && args[:follow_redirects] do
           location = process_response_location(response)
           next_url = normalize_location(location, url)
-          request(method, next_url, options)
+          next_method = redirect_method(response, method)
+          request(next_method, next_url, options)
         else
           handle_response response
         end
