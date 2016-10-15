@@ -171,6 +171,19 @@ defmodule HTTPotionTest do
     assert response.headers[:Location] == nil
   end
 
+  test "follow relative redirect when specified in options" do
+    defmodule ExampleWithRedirect do
+      use HTTPotion.Base
+      defp process_options(options), do: Keyword.put(options, :follow_redirects, true)
+    end
+
+    response = ExampleWithRedirect.get("http://httpbin.org/relative-redirect/1")
+
+    assert_response response
+    assert response.status_code == 200
+    assert response.headers[:Location] == nil
+  end
+
   defp assert_response(response, function \\ nil) do
     assert HTTPotion.Response.success?(response, :extra)
     assert response.headers[:Connection] == "keep-alive"

@@ -175,7 +175,7 @@ defmodule HTTPotion.Base do
           :ibrowse.send_req(args[:url], args[:headers], args[:method], args[:body], args[:ib_options], args[:timeout])
         end
 
-        if response_ok(response) && is_redirect(response) && options[:follow_redirects] do
+        if response_ok(response) && is_redirect(response) && args[:follow_redirects] do
           location = process_response_location(response)
           next_url = normalize_location(location, url)
           request(method, next_url, options)
