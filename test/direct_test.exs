@@ -85,7 +85,7 @@ defmodule DirectTest do
       use HTTPotion.Base
 
       def process_url(url) do
-        send(self, :ok)
+        send(self(), :ok)
 
         super(url)
       end
@@ -98,7 +98,7 @@ defmodule DirectTest do
 
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self, ibrowse: ibrowse, direct: :non_pooled_connection]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self(), ibrowse: ibrowse, direct: :non_pooled_connection]
 
     assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000

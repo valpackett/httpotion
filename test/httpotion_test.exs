@@ -106,12 +106,12 @@ defmodule HTTPotionTest do
       use HTTPotion.Base
 
       def process_url(url) do
-        send(self, :processed_url)
+        send(self(), :processed_url)
         super(url)
       end
 
       def process_options(options) do
-        send(self, :processed_options)
+        send(self(), :processed_options)
         super(options)
       end
     end
@@ -123,7 +123,7 @@ defmodule HTTPotionTest do
 
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self, ibrowse: ibrowse]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self(), ibrowse: ibrowse]
 
     assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
@@ -132,7 +132,7 @@ defmodule HTTPotionTest do
 
   test "asynchronous follow redirect" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
-    %HTTPotion.AsyncResponse{ id: _ } = HTTPotion.get "http://httpbin.org/absolute-redirect/1", [stream_to: self, ibrowse: ibrowse]
+    %HTTPotion.AsyncResponse{ id: _ } = HTTPotion.get "http://httpbin.org/absolute-redirect/1", [stream_to: self(), ibrowse: ibrowse]
 
     assert_receive %HTTPotion.AsyncHeaders{ status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ chunk: _chunk }, 1_000
