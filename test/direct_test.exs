@@ -5,6 +5,9 @@ defmodule DirectTest do
   setup_all do
     {:ok, pid} = HTTPotion.spawn_worker_process("http://httpbin.org")
     Process.register(pid, :non_pooled_connection)
+
+    {:ok, pid} = HTTPotion.spawn_worker_process("http://httpbin.org")
+    Process.register(pid, :non_pooled_connection_timeout)
     :ok
   end
 
@@ -103,6 +106,21 @@ defmodule DirectTest do
     assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
     assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
+  end
+
+  test "asynchronous raw request" do
+    ibrowse = [basic_auth: {'foo', 'bar'}, return_raw_request: true]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self(), ibrowse: ibrowse, direct: :non_pooled_connection]
+
+    assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
+    assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
+    assert_receive %HTTPotion.AsyncRawRequest{ raw_request: _req_resp }, 1_000
+  end
+
+  test "asynchronous timeout" do
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/delay/2", [stream_to: self(), timeout: 1000, direct: :non_pooled_connection_timeout]
+
+    assert_receive %HTTPotion.AsyncTimeout{ id: ^id }, 2_000
   end
 
   test "headers are case insensitive" do
