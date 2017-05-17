@@ -62,6 +62,7 @@ defmodule HTTPotion.Base do
 
       def process_response_chunk(body = {:file, filename}), do: IO.iodata_to_binary(filename)
       def process_response_chunk(chunk = {:error, error}), do: chunk
+      def process_response_chunk(raw) when is_tuple(raw), do: raw
       def process_response_chunk(chunk), do: IO.iodata_to_binary(chunk)
 
       def process_response_location(response) do
@@ -132,6 +133,11 @@ defmodule HTTPotion.Base do
               })
               transformer(target, method, url, options)
             end
+          { :ibrowse_async_raw_req, raw_req } ->
+            send(target, %HTTPotion.AsyncRawRequest{
+              raw_request: raw_req
+            })
+            transformer(target, method, url, options)
           { :ibrowse_async_response, id, chunk } ->
             send(target, %HTTPotion.AsyncChunk{
               id: id,
@@ -140,6 +146,8 @@ defmodule HTTPotion.Base do
             transformer(target, method, url, options)
           { :ibrowse_async_response_end, id } ->
             send(target, %HTTPotion.AsyncEnd{ id: id })
+          { :ibrowse_async_response_timeout, id } ->
+            send(target, %HTTPotion.AsyncTimeout{ id: id })
         end
       end
 
@@ -345,6 +353,14 @@ defmodule HTTPotion do
   end
 
   defmodule AsyncEnd do
+    defstruct id: nil
+  end
+
+  defmodule AsyncRawRequest do
+    defstruct id: nil, raw_request: nil
+  end
+
+  defmodule AsyncTimeout do
     defstruct id: nil
   end
 
