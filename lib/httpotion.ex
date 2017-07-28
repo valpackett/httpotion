@@ -16,12 +16,12 @@ defmodule HTTPotion.Base do
 
       @doc "Starts a worker process for use with the `direct` option."
       def spawn_worker_process(url, options \\ []) do
-        GenServer.start(:ibrowse_http_client, url |> process_url(options) |> String.to_char_list, options)
+        GenServer.start(:ibrowse_http_client, url |> process_url(options) |> String.to_charlist, options)
       end
 
       @doc "Starts a linked worker process for use with the `direct` option."
       def spawn_link_worker_process(url, options \\ []) do
-        GenServer.start_link(:ibrowse_http_client, url |> process_url(options) |> String.to_char_list, options)
+        GenServer.start_link(:ibrowse_http_client, url |> process_url(options) |> String.to_charlist, options)
       end
 
       @doc "Stops a worker process started with `spawn_worker_process/2` or `spawn_link_worker_process/2`."
@@ -103,16 +103,16 @@ defmodule HTTPotion.Base do
         ib_options = if stream_to = Keyword.get(options, :stream_to), do: Keyword.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options])), else: ib_options
         ib_options = if user_password = Keyword.get(options, :basic_auth) do
           {user, password} = user_password
-          Keyword.put(ib_options, :basic_auth, { to_char_list(user), to_char_list(password) })
+          Keyword.put(ib_options, :basic_auth, { to_charlist(user), to_charlist(password) })
         else
           ib_options
         end
 
         %{
           method:     method,
-          url:        url |> to_string |> process_url(options) |> to_char_list,
+          url:        url |> to_string |> process_url(options) |> to_charlist,
           body:       body |> process_request_body,
-          headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_char_list(k), to_char_list(v) } end),
+          headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_charlist(k), to_charlist(v) } end),
           timeout:    timeout,
           ib_options: ib_options,
           follow_redirects: follow_redirects
