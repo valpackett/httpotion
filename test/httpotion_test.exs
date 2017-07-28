@@ -60,7 +60,7 @@ defmodule HTTPotionTest do
 
   test "ibrowse save_response_to_file" do
     file = Path.join(System.tmp_dir, "httpotion_ibrowse_test.txt")
-    ibrowse = [save_response_to_file: String.to_char_list(file)]
+    ibrowse = [save_response_to_file: String.to_charlist(file)]
     assert_response HTTPotion.get("http://httpbin.org/bytes/2048", [ibrowse: ibrowse])
   end
 
