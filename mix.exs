@@ -5,8 +5,8 @@ defmodule HTTPotion.Mixfile do
     [ app: :httpotion,
       name: "httpotion",
       source_url: "https://github.com/myfreeweb/httpotion",
-      version: "3.0.2",
-      elixir:  "~> 1.1",
+      version: "3.0.3",
+      elixir:  "~> 1.3",
       docs: [ extras: ["README.md", "CODE_OF_CONDUCT.md"] ],
       description: description(),
       deps: deps(),
@@ -24,8 +24,8 @@ defmodule HTTPotion.Mixfile do
   end
 
   defp deps do
-    [ {:ibrowse, "~> 4.2"},
-      {:ex_doc, "~> 0.15", only: [:dev, :test, :docs]} ]
+    [ {:ibrowse, "~> 4.4"},
+      {:ex_doc, "~> 0.16", only: [:dev, :test, :docs]} ]
   end
 
   defp package do
