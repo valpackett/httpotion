@@ -130,6 +130,18 @@ defmodule HTTPotionTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  test "asynchronous once request" do
+    ibrowse = [stream_chunk_size: 1000]
+    %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/stream/20", [stream_to: {self(), :once}, ibrowse: ibrowse]
+
+    assert_receive %HTTPotion.AsyncHeaders{ id: ^id, status_code: 200, headers: _headers }, 1_000
+    assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
+    refute_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
+    :ibrowse.stream_next(id)
+    assert_receive %HTTPotion.AsyncChunk{ id: ^id, chunk: _chunk }, 1_000
+    IEx.Helpers.flush()
+  end
+
   test "asynchronous follow redirect" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     %HTTPotion.AsyncResponse{ id: _ } = HTTPotion.get "http://httpbin.org/absolute-redirect/1", [stream_to: self(), ibrowse: ibrowse]

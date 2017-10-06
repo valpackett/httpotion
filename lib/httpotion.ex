@@ -98,9 +98,18 @@ defmodule HTTPotion.Base do
         headers    = Keyword.merge Application.get_env(:httpotion, :default_headers, []), Keyword.get(options, :headers, [])
         timeout    = Keyword.get(options, :timeout, Application.get_env(:httpotion, :default_timeout, 5000))
         ib_options = Keyword.merge Application.get_env(:httpotion, :default_ibrowse, []), Keyword.get(options, :ibrowse, [])
+        stream_to  = Keyword.get(options, :stream_to)
         follow_redirects = Keyword.get(options, :follow_redirects, Application.get_env(:httpotion, :default_follow_redirects, false))
 
-        ib_options = if stream_to = Keyword.get(options, :stream_to), do: Keyword.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [stream_to, method, url, options])), else: ib_options
+        ib_options = case stream_to do
+          {pid, :once} ->
+            Keyword.put(ib_options, :stream_to, {spawn(__MODULE__, :transformer, [pid, method, url, options]), :once})
+          nil ->
+            ib_options
+          pid ->
+            Keyword.put(ib_options, :stream_to, spawn(__MODULE__, :transformer, [pid, method, url, options]))
+        end
+
         ib_options = if user_password = Keyword.get(options, :basic_auth) do
           {user, password} = user_password
           Keyword.put(ib_options, :basic_auth, { to_charlist(user), to_charlist(password) })
