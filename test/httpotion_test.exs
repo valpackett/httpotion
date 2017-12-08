@@ -114,11 +114,17 @@ defmodule HTTPotionTest do
         send(self(), :processed_options)
         super(options)
       end
+
+      def process_response_body(headers, body) do
+        send(self(), :processed_response_body)
+        super(headers, body)
+      end
     end
 
     TestClient.head("httpbin.org/get")
     assert_received :processed_url
     assert_received :processed_options
+    assert_received :processed_response_body
   end
 
   test "asynchronous request" do
