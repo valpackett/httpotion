@@ -226,11 +226,7 @@ defmodule HTTPotion.Base do
       end
 
       defp normalize_location(location, url) do
-        if String.starts_with?(location, "http") do
-          location
-        else
-          Regex.named_captures(~r/(?<url>https?:\/\/.*?)\//, url)["url"] <> location
-        end
+        URI.merge(url, location) |> URI.to_string()
       end
 
       @doc "Deprecated form of `request`; body and headers are now options, see `request/3`."
