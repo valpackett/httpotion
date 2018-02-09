@@ -105,11 +105,13 @@ defmodule HTTPotion.Base do
       defp process_arguments(method, url, options) do
         options    = process_options(options)
 
+        url        = url |> to_string |> process_url(options)
         body       = Keyword.get(options, :body, "")
         headers    = Keyword.merge Application.get_env(:httpotion, :default_headers, []), Keyword.get(options, :headers, [])
         timeout    = Keyword.get(options, :timeout, Application.get_env(:httpotion, :default_timeout, 5000))
         ib_options = Keyword.merge Application.get_env(:httpotion, :default_ibrowse, []), Keyword.get(options, :ibrowse, [])
         stream_to  = Keyword.get(options, :stream_to)
+        auto_sni   = Keyword.get(options, :auto_sni, Application.get_env(:httpotion, :default_auto_sni, true))
         follow_redirects = Keyword.get(options, :follow_redirects, Application.get_env(:httpotion, :default_follow_redirects, false))
 
         ib_options = case stream_to do
@@ -128,9 +130,22 @@ defmodule HTTPotion.Base do
           ib_options
         end
 
+        ib_options = if auto_sni do
+          url_parsed = URI.parse url
+          if url_parsed.scheme == "https" do
+            Keyword.update(ib_options, :ssl_options, [server_name_indication: url_parsed.host |> to_charlist], fn sslo ->
+              Keyword.put(sslo, :server_name_indication, url_parsed.host |> to_charlist)
+            end)
+          else
+            ib_options
+          end
+        else
+          ib_options
+        end
+
         %{
           method:     method,
-          url:        url |> to_string |> process_url(options) |> to_charlist,
+          url:        url |> to_charlist,
           body:       body |> process_request_body,
           headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_charlist(k), to_charlist(v) } end),
           timeout:    timeout,

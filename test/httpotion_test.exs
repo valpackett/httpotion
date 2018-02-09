@@ -75,7 +75,7 @@ defmodule HTTPotionTest do
 
   @tag :tls
   test "TLS SNI support" do
-    assert String.contains? HTTPotion.get("https://check-tls.akamaized.net").body "<title>TLS SNI: present"
+    assert String.contains? HTTPotion.get("https://check-tls.akamaized.net").body, "<title>TLS SNI: present"
   end
 
   test "char list URL" do
