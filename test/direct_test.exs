@@ -68,6 +68,7 @@ defmodule DirectTest do
     assert_response HTTPotion.head("http://httpbin.org/get", [direct: :non_pooled_connection])
   end
 
+  @tag :tls
   test "https scheme" do
     assert_response HTTPotion.head("https://httpbin.org/get", [direct: :non_pooled_connection])
   end
@@ -99,6 +100,7 @@ defmodule DirectTest do
     assert_received :ok
   end
 
+  @tag :asyncreq
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self(), ibrowse: ibrowse, direct: :non_pooled_connection]
@@ -108,6 +110,7 @@ defmodule DirectTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  @tag :asyncreq
   test "asynchronous raw request" do
     ibrowse = [basic_auth: {'foo', 'bar'}, return_raw_request: true]
     %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self(), ibrowse: ibrowse, direct: :non_pooled_connection]
@@ -117,6 +120,7 @@ defmodule DirectTest do
     assert_receive %HTTPotion.AsyncRawRequest{ raw_request: _req_resp }, 1_000
   end
 
+  @tag :asyncreq
   test "asynchronous timeout" do
     %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/delay/2", [stream_to: self(), timeout: 1000, direct: :non_pooled_connection_timeout]
 

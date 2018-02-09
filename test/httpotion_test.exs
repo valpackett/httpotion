@@ -68,8 +68,14 @@ defmodule HTTPotionTest do
     assert_response HTTPotion.head("http://httpbin.org/get")
   end
 
+  @tag :tls
   test "https scheme" do
     assert_response HTTPotion.head("https://httpbin.org/get")
+  end
+
+  @tag :tls
+  test "TLS SNI support" do
+    assert String.contains? HTTPotion.get("https://check-tls.akamaized.net").body "<title>TLS SNI: present"
   end
 
   test "char list URL" do
@@ -85,16 +91,19 @@ defmodule HTTPotionTest do
       HTTPotion.get!("localhost:1")
     end
   end
+
   test "put exception" do
     assert_raise HTTPotion.HTTPError, ~r/^econnrefused|req_timedout|timeout$/, fn ->
       HTTPotion.put!("localhost:1")
     end
   end
+
   test "delete exception" do
     assert_raise HTTPotion.HTTPError, ~r/^econnrefused|req_timedout|timeout$/, fn ->
       HTTPotion.delete!("localhost:1")
     end
   end
+
   test "post exception" do
     assert_raise HTTPotion.HTTPError, ~r/^econnrefused|req_timedout|timeout$/, fn ->
       HTTPotion.post!("localhost:1")
@@ -127,6 +136,7 @@ defmodule HTTPotionTest do
     assert_received :processed_response_body
   end
 
+  @tag :asyncreq
   test "asynchronous request" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/basic-auth/foo/bar", [stream_to: self(), ibrowse: ibrowse]
@@ -136,6 +146,7 @@ defmodule HTTPotionTest do
     assert_receive %HTTPotion.AsyncEnd{ id: ^id }, 1_000
   end
 
+  @tag :asyncreq
   test "asynchronous once request" do
     ibrowse = [stream_chunk_size: 1000]
     %HTTPotion.AsyncResponse{ id: id } = HTTPotion.get "httpbin.org/stream/20", [stream_to: {self(), :once}, ibrowse: ibrowse]
@@ -147,6 +158,7 @@ defmodule HTTPotionTest do
     IEx.Helpers.flush()
   end
 
+  @tag :asyncreq
   test "asynchronous follow redirect" do
     ibrowse = [basic_auth: {'foo', 'bar'}]
     %HTTPotion.AsyncResponse{ id: _ } = HTTPotion.get "http://httpbin.org/absolute-redirect/1", [stream_to: self(), ibrowse: ibrowse]
@@ -164,6 +176,7 @@ defmodule HTTPotionTest do
     assert response.headers[:Location] == nil
   end
 
+  @tag :tls
   test "follow relative https redirect" do
     response = HTTPotion.get("https://httpbin.org/relative-redirect/1", [ follow_redirects: true ])
 
@@ -180,6 +193,7 @@ defmodule HTTPotionTest do
     assert response.headers[:Location] == nil
   end
 
+  @tag :tls
   test "follow absolute https redirect" do
     response = HTTPotion.get("https://httpbin.org/absolute-redirect/1", [ follow_redirects: true ])
 
