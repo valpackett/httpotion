@@ -204,6 +204,7 @@ defmodule HTTPotion.Base do
       * `stream_to` - if you want to make an async request, the pid of the process
       * `direct` - if you want to use ibrowse's direct feature, the pid of
                   the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
+      * `auto_sni` - if true and the URL is https, configures server_name_indication = host part of URL
       * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
 
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
@@ -244,12 +245,12 @@ defmodule HTTPotion.Base do
         URI.merge(url, location) |> URI.to_string()
       end
 
-      @doc "Deprecated form of `request`; body and headers are now options, see `request/3`."
+      @deprecated "Use request/3 instead"
       def request(method, url, body, headers, options) do
         request(method, url, options |> Keyword.put(:body, body) |> Keyword.put(:headers, headers))
       end
 
-      @doc "Deprecated form of `request` with the `direct` option; body and headers are now options, see `request/3`."
+      @deprecated "Use request/3 with 'direct' option instead"
       def request_direct(conn_pid, method, url, body \\ "", headers \\ [], options \\ []) do
         request(method, url, options |> Keyword.put(:direct, conn_pid))
       end
