@@ -44,37 +44,60 @@ Some basic examples:
 
 ```elixir
 iex> response = HTTPotion.get "https://httpbin.org/get"
-%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 200}
+%HTTPotion.Response{
+  body: "{\n…",
+  headers: %HTTPotion.Headers{ hdrs: %{"connection" => "keep-alive", …} },
+  status_code: 200
+}
 
 iex> HTTPotion.Response.success?(response)
 true
 
-# HTTPotion also supports querystrings like
+# Response headers are wrapped to allow case-insensitive access (and to support both atoms and strings)
+iex> response.headers[:sErvEr]
+"meinheld/0.6.1"
+
+iex> response.headers["ConTenT-TyPe"]
+"application/json"
+
+# Response headers can have multiple values
+iex> response = HTTPotion.get "https://httpbin.org/response-headers?foo=1&foo=2&bar=1"
+%HTTPotion.Response{
+  body: "{\n…",
+  headers: %HTTPotion.Headers{ hdrs: %{"foo" => ["1", "2"], "bar" => "1" …} },
+  status_code: 200
+}
+
+# You can provide a map for the query string
 iex> HTTPotion.get("https://httpbin.org/get", query: %{page: 2})
-%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 200}
+%HTTPotion.Response{body: "…", headers: …, status_code: 200}
 
 # Follow redirects
 iex> HTTPotion.get("https://httpbin.org/redirect-to?url=http%3A%2F%2Fexample.com%2F", follow_redirects: true)
-%HTTPotion.Response{body: "…<title>Example Domain</title>…", headers: […], status_code: 200}
+%HTTPotion.Response{body: "…<title>Example Domain</title>…", headers: …, status_code: 200}
 
-# Form data
+# Send form data
 iex> HTTPotion.post "https://httpbin.org/post", [body: "hello=" <> URI.encode_www_form("w o r l d !!"),
   headers: ["User-Agent": "My App", "Content-Type": "application/x-www-form-urlencoded"]]
-%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 200}
+%HTTPotion.Response{body: "…", headers: …, status_code: 200}
 
-# Custom method
+# Use a custom method
 iex> HTTPotion.request :propfind, "http://httpbin.org/post", [body: "I have no idea what I'm doing"]
-%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 405}
+%HTTPotion.Response{body: "…", headers: …, status_code: 405}
 
-# Basic auth
+# Send Basic auth credentials
 iex> HTTPotion.get "https://httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
-%HTTPotion.Response{body: "…", headers: ["Access-Control-Allow-Credentials": "true", …], status_code: 200}
+%HTTPotion.Response{
+  body: "…",
+  headers: %HTTPotion.Headers { hdrs: %{"Access-Control-Allow-Credentials": "true", …} },
+  status_code: 200
+}
 
-# Passing options to ibrowse (note that it usually takes char_lists, not elixir strings)
+# Pass options to ibrowse (note that it usually takes char_lists, not elixir strings)
 iex> HTTPotion.get "https://check-tls.akamaized.net", [ ibrowse: [ ssl_options: [ versions, [:'tlsv1.1'] ] ] ]
-%HTTPotion.Response{body: "…TLS SNI: present - Check TLS - (https,tls1.1,ipv4)…", headers: [Connection: "keep-alive", …], status_code: 200}
+%HTTPotion.Response{body: "…TLS SNI: present - Check TLS - (https,tls1.1,ipv4)…", headers: …, status_code: 200}
 
-# The default timeout is 5000 ms, but can be changed
+# Change the timeout (default is 5000 ms)
 iex> HTTPotion.get "https://example.com", [timeout: 10_000]
 
 # If there is an error a `HTTPotion.ErrorResponse` is returned
@@ -86,11 +109,11 @@ iex> HTTPotion.get! "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
 
-The `Response` is [a struct](https://elixir-lang.org/getting-started/structs.html) – you access its fields like this: `response.body`.
+The `Response` is [a struct](https://elixir-lang.org/getting-started/structs.html), you can access its fields like: `response.body`.
 
-`response.headers` is a `HTTPotion.Headers` struct that provides case-insensitive access (so you can use `response.headers[:authorization]` and it doesn't matter if the server returned `AuThOrIZatIOn` or something).
+`response.headers` is a struct (`HTTPotion.Headers`) that wraps a map to provide case-insensitive access (so you can use `response.headers[:authorization]` and it doesn't matter if the server returned `AuThOrIZatIOn` or something).
 
-`HTTPError` is [an exception](https://elixir-lang.org/getting-started/try-catch-and-rescue.html) that happens when the request fails.
+`HTTPError` is [an exception](https://elixir-lang.org/getting-started/try-catch-and-rescue.html) that happens when a bang request (`request!` / `get!` / …) fails.
 
 Available options and their default values:
 
@@ -149,12 +172,21 @@ You can get the response streamed to your current process asynchronously:
 
 ```elixir
 iex> HTTPotion.get "http://httpbin.org/get", [stream_to: self]
-%HTTPotion.AsyncResponse{id: {1372,8757,656584}}
+%HTTPotion.AsyncResponse{id: -576460752303419903}
 
 iex> flush
-%HTTPotion.AsyncHeaders{id: {1372,8757,656584}, status_code: 200, headers: ["Transfer-Encoding": "chunked", …]}
-%HTTPotion.AsyncChunk{id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n…"}
-%HTTPotion.AsyncEnd{id: {1372,8757,656584}}
+%HTTPotion.AsyncHeaders{
+  id: -576460752303419903,
+  status_code: 200,
+  headers: %HTTPotion.Headers{ hdrs: %{"connection" => "keep-alive", …} }
+}
+%HTTPotion.AsyncChunk{
+  id: -576460752303419903,
+  chunk: "{\n…"
+}
+%HTTPotion.AsyncEnd{
+  id: -576460752303419903
+}
 ```
 
 Note that instead of `process_response_body`, `process_response_chunk` is called on the chunks before sending them out to the receiver (the `stream_to` process).

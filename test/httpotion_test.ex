@@ -49,6 +49,12 @@ defmodule HTTPotionTest do
     end
   end
 
+  test "response multi headers" do
+    assert_response HTTPotion.head("http://httpbin.org/response-headers?foo=bar&foo=bar"), fn(response) ->
+      assert_list response.headers[:"foo"], ["bar", "bar"]
+    end
+  end
+
   test "request headers" do
     assert_response HTTPotion.get("http://httpbin.org/headers", headers: [{:One, "1"}, {"Two", "2"}]), fn(response) ->
       assert String.contains? response.body, ~s("One": "1")
