@@ -98,12 +98,14 @@ Available options and their default values:
 {
   body: "",                # Request's body contents, e.g. "{json: \"string\"}"
   headers: [],             # Request's headers, e.g. [Accept: "application/json"]
+  query: nil,              # Query string, e.g. %{page: 1}
   timeout: 5000,           # Timeout in milliseconds, e.g. 5000
-  ibrowse: [],             # ibrowse options
-  follow_redirects: false, # Whether redirects should be followed
-  auto_sni: true,          # Whether TLS SNI should be automatically configured (does URI parsing)
-  stream_to: nil,          # A process to stream the response to when performing async requests
   basic_auth: nil,         # Basic auth credentials, e.g. {"username", "password"}
+  stream_to: nil,          # A process to stream the response to when performing async requests
+  direct: nil,             # An ibrowse worker for direct mode
+  ibrowse: [],             # ibrowse options
+  auto_sni: true,          # Whether TLS SNI should be automatically configured (does URI parsing)
+  follow_redirects: false, # Whether redirects should be followed
 }
 
 ```
