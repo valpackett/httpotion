@@ -101,6 +101,22 @@ defmodule HTTPotion.Base do
 
       def process_options(options), do: options
 
+      @typedoc """
+      List of options to all request functions.
+
+      * `body` - request body
+      * `headers` - HTTP headers (e.g. `["Accept": "application/json"]`)
+      * `query` - URL query string (e.g. `%{page: 1}`)
+      * `timeout` - timeout in milliseconds
+      * `basic_auth` - basic auth credentials (e.g. `{"user", "password"}`)
+      * `stream_to` - if you want to make an async request, reference to the process
+      * `direct` - if you want to use ibrowse's direct feature, reference to
+                   the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
+      * `ibrowse` - options for ibrowse
+      * `auto_sni` - if true and the URL is https, configures the `server_name_indication` ibrowse/ssl option
+                     to be the host part of the requestedURL
+      * `follow_redirects` - if true and a response is a redirect, re-requests with `header[:Location]`
+      """
       @type http_opts :: [
         body: binary() | charlist(),
         headers: keyword(),
@@ -113,8 +129,12 @@ defmodule HTTPotion.Base do
         auto_sni: boolean(),
         follow_redirects: boolean(),
       ]
-      @type http_result :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
-      @type http_result_bang :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+
+      @typedoc "Result returned from `request/3`, `get/2`, `post/2`, `put/2`, etc."
+      @type http_result :: HTTPotion.Response.t | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
+
+      @typedoc "Result returned from `request!/3`, `get!/2`, `post!/2`, `put!/2`, etc."
+      @type http_result_bang :: HTTPotion.Response.t | %HTTPotion.AsyncResponse{}
 
       @spec process_arguments(atom, String.Chars.t, http_opts) :: map()
       defp process_arguments(method, url, options) do
@@ -204,26 +224,7 @@ defmodule HTTPotion.Base do
       @doc """
       Sends an HTTP request.
 
-      Args:
-
-      * `method` - HTTP method, atom (:get, :head, :post, :put, :delete, etc.)
-      * `url` - URL, binary string or char list
-      * `options` - orddict of options
-
-      Options:
-
-      * `body` - request body, binary string or char list
-      * `headers` - HTTP headers, orddict (eg. `["Accept": "application/json"]`)
-      * `timeout` - timeout in ms, integer
-      * `basic_auth` - basic auth credentials (eg. `{"user", "password"}`)
-      * `stream_to` - if you want to make an async request, the pid of the process
-      * `direct` - if you want to use ibrowse's direct feature, the pid of
-                  the worker spawned by `spawn_worker_process/2` or `spawn_link_worker_process/2`
-      * `auto_sni` - if true and the URL is https, configures server_name_indication = host part of URL
-      * `follow_redirects` - if true and a response is a redirect, header[:Location] is taken for the next request
-
-      Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
-      Returns `HTTPotion.ErrorResponse` if failed.
+      See the type documentation of `http_opts` for a description of options.
       """
       @spec request(atom, String.Chars.t, http_opts) :: http_result
       def request(method, url, options \\ []) do
@@ -245,7 +246,7 @@ defmodule HTTPotion.Base do
       end
 
       @doc """
-      Like `request`, but raises  `HTTPotion.HTTPError` if failed.
+      Like `request/3`, but raises  `HTTPotion.HTTPError` if failed.
       """
       @spec request!(atom, String.Chars.t, http_opts) :: http_result_bang
       def request!(method, url, options \\ []) do
