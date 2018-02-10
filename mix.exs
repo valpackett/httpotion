@@ -2,6 +2,7 @@ defmodule HTTPotion.Mixfile do
   use Mix.Project
 
   def project do
+    if Mix.env == :test, do: Application.ensure_all_started(:ex_unit)
     [ app: :httpotion,
       name: "httpotion",
       source_url: "https://github.com/myfreeweb/httpotion",
@@ -10,7 +11,10 @@ defmodule HTTPotion.Mixfile do
       docs: [ extras: ["README.md", "CODE_OF_CONDUCT.md"] ],
       description: description(),
       deps: deps(),
-      package: package() ]
+      package: package(),
+      elixirc_paths: elixirc_paths(Mix.env),
+      test_pattern: "*_test.ex",
+      warn_test_pattern: "*_test.exs" ]
   end
 
   def application do
@@ -34,4 +38,8 @@ defmodule HTTPotion.Mixfile do
       licenses: [ "Unlicense" ],
       links: %{ "GitHub" => "https://github.com/myfreeweb/httpotion" } ]
   end
+
+  # http://learningelixir.joekain.com/dialyzer-and-integration-tests/
+  defp elixirc_paths(:test), do: ["lib", "test"]
+  defp elixirc_paths(_),     do: ["lib"]
 end

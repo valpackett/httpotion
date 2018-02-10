@@ -101,7 +101,19 @@ defmodule HTTPotion.Base do
 
       def process_options(options), do: options
 
-      @spec process_arguments(atom, String.t, [{atom(), any()}]) :: %{}
+      @type http_url :: any() # XXX String.Chars
+      @type http_opts :: [
+        body: String.t,
+        headers: [keyword()],
+        timeout: non_neg_integer(),
+        ib_options: [keyword()],
+        stream_to: pid(),
+        direct: pid(),
+        auto_sni: boolean(),
+        follow_redirects: boolean(),
+      ]
+
+      @spec process_arguments(atom, http_url, http_opts) :: map()
       defp process_arguments(method, url, options) do
         options    = process_options(options)
 
@@ -186,6 +198,9 @@ defmodule HTTPotion.Base do
         end
       end
 
+      @type http_result :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
+      @type http_result_bang :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+
       @doc """
       Sends an HTTP request.
 
@@ -210,7 +225,7 @@ defmodule HTTPotion.Base do
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
       Returns `HTTPotion.ErrorResponse` if failed.
       """
-      @spec request(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
+      @spec request(atom, http_url, http_opts) :: http_result
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
         response = if conn_pid = Keyword.get(options, :direct) do
@@ -232,7 +247,7 @@ defmodule HTTPotion.Base do
       @doc """
       Like `request`, but raises  `HTTPotion.HTTPError` if failed.
       """
-      @spec request!(atom, String.t, [{atom(), any()}]) :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
+      @spec request!(atom, http_url, http_opts) :: http_result_bang
       def request!(method, url, options \\ []) do
         case request(method, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -287,38 +302,52 @@ defmodule HTTPotion.Base do
       end
 
       @doc "A shortcut for `request(:get, url, options)`."
+      @spec get(http_url, http_opts) :: http_result
       def get(url,     options \\ []), do: request(:get, url, options)
       @doc "A shortcut for `request!(:get, url, options)`."
-      def get!(url,     options \\ []), do: request!(:get, url, options)
+      @spec get!(http_url, http_opts) :: http_result_bang
+      def get!(url,    options \\ []), do: request!(:get, url, options)
 
       @doc "A shortcut for `request(:put, url, options)`."
+      @spec put(http_url, http_opts) :: http_result
       def put(url,     options \\ []), do: request(:put, url, options)
       @doc "A shortcut for `request!(:put, url, options)`."
-      def put!(url,     options \\ []), do: request!(:put, url, options)
+      @spec put!(http_url, http_opts) :: http_result_bang
+      def put!(url,    options \\ []), do: request!(:put, url, options)
 
       @doc "A shortcut for `request(:head, url, options)`."
+      @spec head(http_url, http_opts) :: http_result
       def head(url,    options \\ []), do: request(:head, url, options)
       @doc "A shortcut for `request!(:head, url, options)`."
-      def head!(url,    options \\ []), do: request!(:head, url, options)
+      @spec head!(http_url, http_opts) :: http_result_bang
+      def head!(url,   options \\ []), do: request!(:head, url, options)
 
       @doc "A shortcut for `request(:post, url, options)`."
+      @spec post(http_url, http_opts) :: http_result
       def post(url,    options \\ []), do: request(:post, url, options)
       @doc "A shortcut for `request!(:post, url, options)`."
-      def post!(url,    options \\ []), do: request!(:post, url, options)
+      @spec post!(http_url, http_opts) :: http_result_bang
+      def post!(url,   options \\ []), do: request!(:post, url, options)
 
       @doc "A shortcut for `request(:patch, url, options)`."
+      @spec patch(http_url, http_opts) :: http_result
       def patch(url,   options \\ []), do: request(:patch, url, options)
       @doc "A shortcut for `request!(:patch, url, options)`."
-      def patch!(url,   options \\ []), do: request!(:patch, url, options)
+      @spec patch!(http_url, http_opts) :: http_result_bang
+      def patch!(url,  options \\ []), do: request!(:patch, url, options)
 
       @doc "A shortcut for `request(:delete, url, options)`."
+      @spec delete(http_url, http_opts) :: http_result
       def delete(url,  options \\ []), do: request(:delete, url, options)
       @doc "A shortcut for `request!(:delete, url, options)`."
+      @spec delete!(http_url, http_opts) :: http_result_bang
       def delete!(url,  options \\ []), do: request!(:delete, url, options)
 
       @doc "A shortcut for `request(:options, url, options)`."
+      @spec options(http_url, http_opts) :: http_result
       def options(url, options \\ []), do: request(:options, url, options)
       @doc "A shortcut for `request!(:options, url, options)`."
+      @spec options!(http_url, http_opts) :: http_result_bang
       def options!(url, options \\ []), do: request!(:options, url, options)
 
       defoverridable Module.definitions_in(__MODULE__)
