@@ -101,19 +101,22 @@ defmodule HTTPotion.Base do
 
       def process_options(options), do: options
 
-      @type http_url :: any() # XXX String.Chars
       @type http_opts :: [
-        body: String.t,
-        headers: [keyword()],
-        timeout: non_neg_integer(),
-        ib_options: [keyword()],
-        stream_to: pid(),
-        direct: pid(),
+        body: binary() | charlist(),
+        headers: keyword(),
+        query: %{optional(String.Chars.t) => String.Chars.t},
+        timeout: timeout(),
+        basic_auth: {List.Chars.t, List.Chars.t},
+        stream_to: pid() | port() | atom() | {atom(), node()},
+        direct: pid() | port() | atom() | {atom(), node()},
+        ibrowse: keyword(),
         auto_sni: boolean(),
         follow_redirects: boolean(),
       ]
+      @type http_result :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
+      @type http_result_bang :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
 
-      @spec process_arguments(atom, http_url, http_opts) :: map()
+      @spec process_arguments(atom, String.Chars.t, http_opts) :: map()
       defp process_arguments(method, url, options) do
         options    = process_options(options)
 
@@ -198,9 +201,6 @@ defmodule HTTPotion.Base do
         end
       end
 
-      @type http_result :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{} | %HTTPotion.ErrorResponse{}
-      @type http_result_bang :: %HTTPotion.Response{} | %HTTPotion.AsyncResponse{}
-
       @doc """
       Sends an HTTP request.
 
@@ -225,7 +225,7 @@ defmodule HTTPotion.Base do
       Returns `HTTPotion.Response` or `HTTPotion.AsyncResponse` if successful.
       Returns `HTTPotion.ErrorResponse` if failed.
       """
-      @spec request(atom, http_url, http_opts) :: http_result
+      @spec request(atom, String.Chars.t, http_opts) :: http_result
       def request(method, url, options \\ []) do
         args = process_arguments(method, url, options)
         response = if conn_pid = Keyword.get(options, :direct) do
@@ -247,7 +247,7 @@ defmodule HTTPotion.Base do
       @doc """
       Like `request`, but raises  `HTTPotion.HTTPError` if failed.
       """
-      @spec request!(atom, http_url, http_opts) :: http_result_bang
+      @spec request!(atom, String.Chars.t, http_opts) :: http_result_bang
       def request!(method, url, options \\ []) do
         case request(method, url, options) do
           %HTTPotion.ErrorResponse{message: message} ->
@@ -302,52 +302,52 @@ defmodule HTTPotion.Base do
       end
 
       @doc "A shortcut for `request(:get, url, options)`."
-      @spec get(http_url, http_opts) :: http_result
+      @spec get(String.Chars.t, http_opts) :: http_result
       def get(url,     options \\ []), do: request(:get, url, options)
       @doc "A shortcut for `request!(:get, url, options)`."
-      @spec get!(http_url, http_opts) :: http_result_bang
+      @spec get!(String.Chars.t, http_opts) :: http_result_bang
       def get!(url,    options \\ []), do: request!(:get, url, options)
 
       @doc "A shortcut for `request(:put, url, options)`."
-      @spec put(http_url, http_opts) :: http_result
+      @spec put(String.Chars.t, http_opts) :: http_result
       def put(url,     options \\ []), do: request(:put, url, options)
       @doc "A shortcut for `request!(:put, url, options)`."
-      @spec put!(http_url, http_opts) :: http_result_bang
+      @spec put!(String.Chars.t, http_opts) :: http_result_bang
       def put!(url,    options \\ []), do: request!(:put, url, options)
 
       @doc "A shortcut for `request(:head, url, options)`."
-      @spec head(http_url, http_opts) :: http_result
+      @spec head(String.Chars.t, http_opts) :: http_result
       def head(url,    options \\ []), do: request(:head, url, options)
       @doc "A shortcut for `request!(:head, url, options)`."
-      @spec head!(http_url, http_opts) :: http_result_bang
+      @spec head!(String.Chars.t, http_opts) :: http_result_bang
       def head!(url,   options \\ []), do: request!(:head, url, options)
 
       @doc "A shortcut for `request(:post, url, options)`."
-      @spec post(http_url, http_opts) :: http_result
+      @spec post(String.Chars.t, http_opts) :: http_result
       def post(url,    options \\ []), do: request(:post, url, options)
       @doc "A shortcut for `request!(:post, url, options)`."
-      @spec post!(http_url, http_opts) :: http_result_bang
+      @spec post!(String.Chars.t, http_opts) :: http_result_bang
       def post!(url,   options \\ []), do: request!(:post, url, options)
 
       @doc "A shortcut for `request(:patch, url, options)`."
-      @spec patch(http_url, http_opts) :: http_result
+      @spec patch(String.Chars.t, http_opts) :: http_result
       def patch(url,   options \\ []), do: request(:patch, url, options)
       @doc "A shortcut for `request!(:patch, url, options)`."
-      @spec patch!(http_url, http_opts) :: http_result_bang
+      @spec patch!(String.Chars.t, http_opts) :: http_result_bang
       def patch!(url,  options \\ []), do: request!(:patch, url, options)
 
       @doc "A shortcut for `request(:delete, url, options)`."
-      @spec delete(http_url, http_opts) :: http_result
+      @spec delete(String.Chars.t, http_opts) :: http_result
       def delete(url,  options \\ []), do: request(:delete, url, options)
       @doc "A shortcut for `request!(:delete, url, options)`."
-      @spec delete!(http_url, http_opts) :: http_result_bang
+      @spec delete!(String.Chars.t, http_opts) :: http_result_bang
       def delete!(url,  options \\ []), do: request!(:delete, url, options)
 
       @doc "A shortcut for `request(:options, url, options)`."
-      @spec options(http_url, http_opts) :: http_result
+      @spec options(String.Chars.t, http_opts) :: http_result
       def options(url, options \\ []), do: request(:options, url, options)
       @doc "A shortcut for `request!(:options, url, options)`."
-      @spec options!(http_url, http_opts) :: http_result_bang
+      @spec options!(String.Chars.t, http_opts) :: http_result_bang
       def options!(url, options \\ []), do: request!(:options, url, options)
 
       defoverridable Module.definitions_in(__MODULE__)
@@ -365,7 +365,8 @@ defmodule HTTPotion do
   """
 
   defmodule Response do
-    defstruct status_code: nil, body: nil, headers: []
+    defstruct status_code: -1, body: nil, headers: []
+    @type t :: %__MODULE__{status_code: integer(), body: any(), headers: Access.t}
 
     def success?(%__MODULE__{ status_code: code }) do
       code in 200..299
@@ -389,6 +390,7 @@ defmodule HTTPotion do
 
   defmodule Headers do
     defstruct hdrs: %{}
+    @behaviour Access
 
     defp normalized_key(key) do
       key |> to_string |> String.downcase
@@ -398,8 +400,17 @@ defmodule HTTPotion do
       Map.fetch(headers, normalized_key(key))
     end
 
+    def get(%Headers{hdrs: headers}, key, default) do
+      Map.get(headers, normalized_key(key), default)
+    end
+
     def get_and_update(%Headers{hdrs: headers}, key, acc) do
       {val, updated} = Map.get_and_update(headers, normalized_key(key), acc)
+      {val, %Headers{hdrs: updated}}
+    end
+
+    def pop(%Headers{hdrs: headers}, key) do
+      {val, updated} = Map.pop(headers, normalized_key(key))
       {val, %Headers{hdrs: updated}}
     end
   end
@@ -409,7 +420,8 @@ defmodule HTTPotion do
   end
 
   defmodule AsyncHeaders do
-    defstruct id: nil, status_code: nil, headers: %{}
+    defstruct id: nil, status_code: -1, headers: []
+    @type t :: %__MODULE__{id: any(), status_code: integer(), headers: Access.t}
   end
 
   defmodule AsyncChunk do

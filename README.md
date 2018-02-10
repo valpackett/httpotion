@@ -180,6 +180,12 @@ iex> HTTPotion.post "httpbin.org/post", [direct: worker_pid, stream_to: self, he
 %HTTPotion.AsyncResponse{id: {1372,8757,656584}}
 ```
 
+### Type analysis
+
+HTTPotion contains [typespecs] so your usage can be checked with [dialyzer], probably via [dialyxir] or [elixir-ls].
+
+HTTPotion's tests are checked with dialyxir.
+
 [Elixir]: https://elixir-lang.org
 [ibrowse]: https://github.com/cmullaparthi/ibrowse
 [HTTParty]: https://github.com/jnunemaker/httparty
@@ -187,6 +193,10 @@ iex> HTTPotion.post "httpbin.org/post", [direct: worker_pid, stream_to: self, he
 [HTTParrot]: https://github.com/edgurgel/httparrot
 [HTTPie]: https://github.com/jkbr/httpie
 [Poison]: https://github.com/devinus/poison
+[typespecs]: https://elixir-lang.org/getting-started/typespecs-and-behaviours.html
+[dialyzer]: http://erlang.org/doc/man/dialyzer.html
+[dialyxir]: https://github.com/jeremyjh/dialyxir
+[elixir-ls]: https://github.com/JakeBecker/elixir-ls
 
 ## Contributing
 

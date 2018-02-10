@@ -2,7 +2,7 @@ defmodule HTTPotion.Mixfile do
   use Mix.Project
 
   def project do
-    if Mix.env == :test, do: Application.ensure_all_started(:ex_unit)
+    if Mix.env == :dial, do: Application.ensure_all_started(:ex_unit)
     [ app: :httpotion,
       name: "httpotion",
       source_url: "https://github.com/myfreeweb/httpotion",
@@ -14,7 +14,8 @@ defmodule HTTPotion.Mixfile do
       package: package(),
       elixirc_paths: elixirc_paths(Mix.env),
       test_pattern: "*_test.ex",
-      warn_test_pattern: "*_test.exs" ]
+      warn_test_pattern: "*_test.exs",
+      preferred_cli_env: [ dialyzer: :dial ] ]
   end
 
   def application do
@@ -40,6 +41,7 @@ defmodule HTTPotion.Mixfile do
   end
 
   # http://learningelixir.joekain.com/dialyzer-and-integration-tests/
-  defp elixirc_paths(:test), do: ["lib", "test"]
+  # modified to only compile for dialyzer, not for running tests
+  defp elixirc_paths(:dial), do: ["lib", "test"]
   defp elixirc_paths(_),     do: ["lib"]
 end
