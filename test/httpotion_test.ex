@@ -43,9 +43,16 @@ defmodule HTTPotionTest do
     end
   end
 
-  test "headers" do
+  test "response headers" do
     assert_response HTTPotion.head("http://httpbin.org/cookies/set?first=foo&second=bar"), fn(response) ->
       assert_list response.headers[:"Set-Cookie"], ["first=foo; Path=/", "second=bar; Path=/"]
+    end
+  end
+
+  test "request headers" do
+    assert_response HTTPotion.get("http://httpbin.org/headers", headers: [{:One, "1"}, {"Two", "2"}]), fn(response) ->
+      assert String.contains? response.body, ~s("One": "1")
+      assert String.contains? response.body, ~s("Two": "2")
     end
   end
 

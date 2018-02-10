@@ -119,7 +119,7 @@ defmodule HTTPotion.Base do
       """
       @type http_opts :: [
         body: binary() | charlist(),
-        headers: keyword(),
+        headers: [{atom() | String.Chars.t, String.Chars.t}],
         query: %{optional(String.Chars.t) => String.Chars.t},
         timeout: timeout(),
         basic_auth: {List.Chars.t, List.Chars.t},
@@ -142,9 +142,14 @@ defmodule HTTPotion.Base do
 
         url        = url |> to_string |> process_url(options)
         body       = Keyword.get(options, :body, "")
-        headers    = Keyword.merge Application.get_env(:httpotion, :default_headers, []), Keyword.get(options, :headers, [])
+                     |> process_request_body
+        headers    = Application.get_env(:httpotion, :default_headers, [])
+                     |> Keyword.merge(Keyword.get(options, :headers, [])
+                       |> Enum.map(fn ({k, v}) -> { (if is_atom(k), do: k, else: String.to_atom(to_string(k))), to_string(v) } end))
+                     |> process_request_headers
         timeout    = Keyword.get(options, :timeout, Application.get_env(:httpotion, :default_timeout, 5000))
-        ib_options = Keyword.merge Application.get_env(:httpotion, :default_ibrowse, []), Keyword.get(options, :ibrowse, [])
+        ib_options = Application.get_env(:httpotion, :default_ibrowse, [])
+                     |> Keyword.merge(Keyword.get(options, :ibrowse, []))
         stream_to  = Keyword.get(options, :stream_to)
         auto_sni   = Keyword.get(options, :auto_sni, Application.get_env(:httpotion, :default_auto_sni, true))
         follow_redirects = Keyword.get(options, :follow_redirects, Application.get_env(:httpotion, :default_follow_redirects, false))
@@ -181,8 +186,8 @@ defmodule HTTPotion.Base do
         %{
           method:     method,
           url:        url |> to_charlist,
-          body:       body |> process_request_body,
-          headers:    headers |> process_request_headers |> Enum.map(fn ({k, v}) -> { to_charlist(k), to_charlist(v) } end),
+          body:       body,
+          headers:    headers |> Enum.map(fn ({k, v}) -> { to_charlist(k), to_charlist(v) } end),
           timeout:    timeout,
           ib_options: ib_options,
           follow_redirects: follow_redirects
