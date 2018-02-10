@@ -43,33 +43,39 @@ $ iex -S mix
 Some basic examples:
 
 ```elixir
-iex> response = HTTPotion.get "httpbin.org/get"
-%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
+iex> response = HTTPotion.get "https://httpbin.org/get"
+%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 200}
 
 iex> HTTPotion.Response.success?(response)
 true
 
 # HTTPotion also supports querystrings like
-iex> HTTPotion.get("httpbin.org/get", query: %{page: 2})
-%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
+iex> HTTPotion.get("https://httpbin.org/get", query: %{page: 2})
+%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 200}
+
+# Follow redirects
+iex> HTTPotion.get("https://httpbin.org/redirect-to?url=http%3A%2F%2Fexample.com%2F", follow_redirects: true)
+%HTTPotion.Response{body: "…<title>Example Domain</title>…", headers: […], status_code: 200}
 
 # Form data
 iex> HTTPotion.post "https://httpbin.org/post", [body: "hello=" <> URI.encode_www_form("w o r l d !!"),
   headers: ["User-Agent": "My App", "Content-Type": "application/x-www-form-urlencoded"]]
-%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
+%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 200}
 
+# Custom method
 iex> HTTPotion.request :propfind, "http://httpbin.org/post", [body: "I have no idea what I'm doing"]
-%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 405}
+%HTTPotion.Response{body: "…", headers: [Connection: "keep-alive", …], status_code: 405}
 
-iex> HTTPotion.get "httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
-%HTTPotion.Response{body: "...", headers: ["Access-Control-Allow-Credentials": "true", ...], status_code: 200}
+# Basic auth
+iex> HTTPotion.get "https://httpbin.org/basic-auth/foo/bar", [basic_auth: {"foo", "bar"}]
+%HTTPotion.Response{body: "…", headers: ["Access-Control-Allow-Credentials": "true", …], status_code: 200}
 
 # Passing options to ibrowse (note that it usually takes char_lists, not elixir strings)
-iex> HTTPotion.get "http://ip6.me", [ ibrowse: [ proxy_host: 'fc81:6134:ba6c:8458:c99f:6c01:6472:8f1e', proxy_port: 8118 ] ]
-%HTTPotion.Response{body: "...", headers: [Connection: "keep-alive", ...], status_code: 200}
+iex> HTTPotion.get "https://check-tls.akamaized.net", [ ibrowse: [ ssl_options: [ versions, [:'tlsv1.1'] ] ] ]
+%HTTPotion.Response{body: "…TLS SNI: present - Check TLS - (https,tls1.1,ipv4)…", headers: [Connection: "keep-alive", …], status_code: 200}
 
 # The default timeout is 5000 ms, but can be changed
-iex> HTTPotion.get "http://example.com", [timeout: 10_000]
+iex> HTTPotion.get "https://example.com", [timeout: 10_000]
 
 # If there is an error a `HTTPotion.ErrorResponse` is returned
 iex> HTTPotion.get "http://localhost:1"
@@ -80,32 +86,31 @@ iex> HTTPotion.get! "http://localhost:1"
 ** (HTTPotion.HTTPError) econnrefused
 ```
 
-The `Response` is [a struct](http://elixir-lang.org/getting-started/structs.html) – you access its fields like this: `response.body`.
+The `Response` is [a struct](https://elixir-lang.org/getting-started/structs.html) – you access its fields like this: `response.body`.
 
 `response.headers` is a `HTTPotion.Headers` struct that provides case-insensitive access (so you can use `response.headers[:authorization]` and it doesn't matter if the server returned `AuThOrIZatIOn` or something).
 
-`HTTPError` is [an exception](http://elixir-lang.org/getting-started/try-catch-and-rescue.html) that happens when the request fails.
+`HTTPError` is [an exception](https://elixir-lang.org/getting-started/try-catch-and-rescue.html) that happens when the request fails.
 
-*Note*: the API changed in 2.0.0, body and headers are options now!
-
-Available options and their default value:
+Available options and their default values:
 
 ```elixir
 {
-  body: "",                # Request's body contents Ex.: "{json: \"string\"}"
-  headers: [],             # Request's headers. Ex.: ["Accepts" => "application/json"]
-  timeout: 5000,           # Timeout in milliseconds Ex: 5000
+  body: "",                # Request's body contents, e.g. "{json: \"string\"}"
+  headers: [],             # Request's headers, e.g. [Accept: "application/json"]
+  timeout: 5000,           # Timeout in milliseconds, e.g. 5000
   ibrowse: [],             # ibrowse options
-  follow_redirects: false, # Specify whether redirects should be followed
-  stream_to: nil,          # Specify a process to stream the response to when performing async requests
-  basic_auth: nil,         # Basic auth credentials. Ex.: {"username", "password"}
+  follow_redirects: false, # Whether redirects should be followed
+  auto_sni: true,          # Whether TLS SNI should be automatically configured (does URI parsing)
+  stream_to: nil,          # A process to stream the response to when performing async requests
+  basic_auth: nil,         # Basic auth credentials, e.g. {"username", "password"}
 }
 
 ```
 
 ### Metaprogramming magic
 
-You can extend `HTTPotion.Base` to make cool API clients or something (this example uses [jsx] for JSON):
+You can extend `HTTPotion.Base` to make cool HTTP API wrappers (this example uses [Poison] for JSON):
 
 ```elixir
 defmodule GitHub do
@@ -120,36 +125,33 @@ defmodule GitHub do
   end
 
   def process_response_body(body) do
-    body |> IO.iodata_to_binary |> :jsx.decode
-    |> Enum.map fn ({k, v}) -> { String.to_atom(k), v } end
-    |> :orddict.from_list
+    body |> Poison.decode!
   end
 end
 ```
 
 ```elixir
-iex> GitHub.get("users/myfreeweb").body[:public_repos]
-37
+iex> GitHub.get("users/myfreeweb").body["public_repos"]
+233
 ```
 
 Read the source to see all the hooks.
-It's not intimidating at all, pretty easy to read actually :-)
 
-Don't forget that `IO.iodata_to_binary` is called by default in `process_response_body` and `process_response_chunk`, you'll probably need to call it too.
+Keep in mind that `process_response_body` and `process_response_chunk` get iodata.
+By default, they call `IO.iodata_to_binary`.
+But efficient parsers like Poison can work directly on iodata.
 
 ### Asynchronous requests
 
-Hey, we're on the Erlang VM, right?
-Every serious OTP app probably makes a lot of these.
-It's easy to do in HTTPotion.
+You can get the response streamed to your current process asynchronously:
 
 ```elixir
 iex> HTTPotion.get "http://httpbin.org/get", [stream_to: self]
 %HTTPotion.AsyncResponse{id: {1372,8757,656584}}
 
 iex> flush
-%HTTPotion.AsyncHeaders{id: {1372,8757,656584}, status_code: 200, headers: ["Transfer-Encoding": "chunked", ...]}
-%HTTPotion.AsyncChunk{id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n..."}
+%HTTPotion.AsyncHeaders{id: {1372,8757,656584}, status_code: 200, headers: ["Transfer-Encoding": "chunked", …]}
+%HTTPotion.AsyncChunk{id: {1372,8757,656584}, chunk: "<!DOCTYPE html>\n…"}
 %HTTPotion.AsyncEnd{id: {1372,8757,656584}}
 ```
 
@@ -166,7 +168,7 @@ Don't forget that you have to pass the URL to the worker process, which means th
 iex> {:ok, worker_pid} = HTTPotion.spawn_worker_process("http://httpbin.org")
 
 iex> HTTPotion.get "httpbin.org/get", [direct: worker_pid]
-%HTTPotion.Response{body: "...", headers: ["Connection": "close", ...], status_code: 200}
+%HTTPotion.Response{body: "…", headers: ["Connection": "close", …], status_code: 200}
 ```
 
 You can even combine it with async!
@@ -178,19 +180,19 @@ iex> HTTPotion.post "httpbin.org/post", [direct: worker_pid, stream_to: self, he
 %HTTPotion.AsyncResponse{id: {1372,8757,656584}}
 ```
 
-[Elixir]: http://elixir-lang.org
+[Elixir]: https://elixir-lang.org
 [ibrowse]: https://github.com/cmullaparthi/ibrowse
 [HTTParty]: https://github.com/jnunemaker/httparty
 [HTTPretty]: https://github.com/gabrielfalcao/HTTPretty
 [HTTParrot]: https://github.com/edgurgel/httparrot
 [HTTPie]: https://github.com/jkbr/httpie
-[jsx]: https://github.com/talentdeficit/jsx
+[Poison]: https://github.com/devinus/poison
 
 ## Contributing
 
 Please feel free to submit pull requests!
 
-By participating in this project you agree to follow the [Contributor Code of Conduct](http://contributor-covenant.org/version/1/1/0/).
+By participating in this project you agree to follow the [Contributor Code of Conduct](https://www.contributor-covenant.org/version/1/4/).
 
 [The list of contributors is available on GitHub](https://github.com/myfreeweb/httpotion/graphs/contributors).
 
