@@ -1,5 +1,8 @@
 /_build
 /deps
+/cover
 /ebin
 /doc
+/.fetch
 erl_crash.dump
+.elixir_ls
