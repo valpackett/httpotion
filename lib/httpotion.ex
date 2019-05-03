@@ -55,6 +55,8 @@ defmodule HTTPotion.Base do
 
       def process_request_headers(headers), do: headers
 
+      def process_request_headers(headers, _body), do: process_request_headers(headers)
+
       def process_status_code(status_code), do: elem(:string.to_integer(status_code), 0)
 
       def process_response_body(body = {:file, filename}), do: IO.iodata_to_binary(filename)
@@ -146,7 +148,7 @@ defmodule HTTPotion.Base do
         headers    = Application.get_env(:httpotion, :default_headers, [])
                      |> Keyword.merge(Keyword.get(options, :headers, [])
                        |> Enum.map(fn ({k, v}) -> { (if is_atom(k), do: k, else: String.to_atom(to_string(k))), to_string(v) } end))
-                     |> process_request_headers
+                     |> process_request_headers(body)
         timeout    = Keyword.get(options, :timeout, Application.get_env(:httpotion, :default_timeout, 5000))
         ib_options = Application.get_env(:httpotion, :default_ibrowse, [])
                      |> Keyword.merge(Keyword.get(options, :ibrowse, []))
