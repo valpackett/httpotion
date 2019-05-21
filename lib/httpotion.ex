@@ -57,7 +57,7 @@ defmodule HTTPotion.Base do
 
       def process_request_headers(headers, _body), do: process_request_headers(headers)
 
-      def process_request_headers(headers, _body, _options), do: process_request_headers(headers)
+      def process_request_headers(headers, body, _options), do: process_request_headers(headers, body)
 
       def process_status_code(status_code), do: elem(:string.to_integer(status_code), 0)
 
