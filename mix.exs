@@ -30,6 +30,7 @@ defmodule HTTPotion.Mixfile do
 
   defp deps do
     [ {:ibrowse, "== 4.4.0"},
+      {:ssl_verify_fun, "~> 1.1"},
       {:ex_doc, "~> 0.18", only: [:dev, :test, :docs]} ]
   end
 

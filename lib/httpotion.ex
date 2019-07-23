@@ -152,7 +152,8 @@ defmodule HTTPotion.Base do
                        |> Enum.map(fn ({k, v}) -> { (if is_atom(k), do: k, else: String.to_atom(to_string(k))), to_string(v) } end))
                      |> process_request_headers(body, options)
         timeout    = Keyword.get(options, :timeout, Application.get_env(:httpotion, :default_timeout, 5000))
-        ib_options = Application.get_env(:httpotion, :default_ibrowse, [])
+        ib_options = Application.get_env(:httpotion, :default_ibrowse, [ssl_options: [
+                         verify: :verify_peer, verify_fun: &:ssl_verify_hostname.verify_fun/3, depth: 69, cacertfile: HTTPotion.default_cert_bundle()]])
                      |> Keyword.merge(Keyword.get(options, :ibrowse, []))
         stream_to  = Keyword.get(options, :stream_to)
         auto_sni   = Keyword.get(options, :auto_sni, Application.get_env(:httpotion, :default_auto_sni, true))
@@ -452,6 +453,17 @@ defmodule HTTPotion do
 
   defmodule HTTPError do
     defexception [:message]
+  end
+
+  def default_cert_bundle() do
+    cond do
+      File.exists?("/etc/ssl/cert.pem") -> "/etc/ssl/cert.pem"
+      File.exists?("/etc/pki/tls/cert.pem") -> "/etc/pki/tls/cert.pem"
+      File.exists?("/usr/lib/ssl/cert.pem") -> "/usr/lib/ssl/cert.pem"
+      File.exists?("/etc/ssl/certs/ca-certificates.crt") -> "/etc/ssl/certs/ca-certificates.crt"
+      Code.ensure_loaded(:certifi) == {:module, :certifi} -> apply(:certifi, :cacertfile, [])
+      true -> nil
+    end
   end
 
   use HTTPotion.Base

@@ -40,6 +40,8 @@ $ mix deps.get
 $ iex -S mix
 ```
 
+*Note*: HTTPotion now enables certificate verification by default, using a few default CA bundle paths (`/etc/ssl/cert.pem` etc.) or the [certifi](https://hex.pm/packages/certifi) package (which is not a mandatory dependency).
+
 Some basic examples:
 
 ```elixir
