@@ -9,6 +9,8 @@
 HTTP client for [Elixir], based on [ibrowse].
 Continues the HTTPun tradition of [HTTParty], [HTTPretty], [HTTParrot] and [HTTPie].
 
+*Note*: unfortunately, ibrowse seems a bit buggy and not super actively maintained. You might want to check out [Tesla](https://github.com/teamon/tesla) with hackney instead, and [this](https://github.com/teamon/tesla/issues/293#issuecomment-522312859) cert verification setup.
+
 ## Installation
 
 Add HTTPotion to your project's dependencies in `mix.exs`:
