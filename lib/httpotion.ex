@@ -272,7 +272,8 @@ defmodule HTTPotion.Base do
         URI.merge(url, location) |> URI.to_string()
       end
 
-      defp strip_auth_from_headers(headers) do
+      defp strip_auth_from_headers(headers) when is_nil(headers), do: nil
+      defp strip_auth_from_headers(headers) when is_list(headers) do
         {_auth, headers_without_auth} = Keyword.pop(headers, :authorization)
         headers_without_auth
       end
