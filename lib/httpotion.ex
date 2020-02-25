@@ -249,7 +249,8 @@ defmodule HTTPotion.Base do
           location = process_response_location(response)
           next_url = normalize_location(location, url)
           next_method = redirect_method(response, method)
-          request(next_method, next_url, options)
+          headers = strip_auth_from_headers(args[:headers])
+          request(next_method, next_url, Keyword.put(options, :headers, headers))
         else
           handle_response response
         end
@@ -269,6 +270,11 @@ defmodule HTTPotion.Base do
 
       defp normalize_location(location, url) do
         URI.merge(url, location) |> URI.to_string()
+      end
+
+      defp strip_auth_from_headers(headers) do
+        {_auth, headers_without_auth} = Keyword.pop(headers, :authorization)
+        headers_without_auth
       end
 
       @deprecated "Use request/3 instead"
