@@ -1,7 +1,6 @@
 [![hex.pm version](https://img.shields.io/hexpm/v/httpotion.svg?style=flat)](https://hex.pm/packages/httpotion)
 [![hex.pm downloads](https://img.shields.io/hexpm/dt/httpotion.svg?style=flat)](https://hex.pm/packages/httpotion)
 [![API Docs](https://img.shields.io/badge/api-docs-yellow.svg?style=flat)](https://hexdocs.pm/httpotion/)
-[![Build Status](https://img.shields.io/travis/myfreeweb/httpotion.svg?style=flat)](https://travis-ci.org/myfreeweb/httpotion)
 [![unlicense](https://img.shields.io/badge/un-license-green.svg?style=flat)](http://unlicense.org)
 
 # HTTPotion
@@ -160,7 +159,7 @@ end
 ```
 
 ```elixir
-iex> GitHub.get("users/myfreeweb").body["public_repos"]
+iex> GitHub.get("users/unrelentingtech").body["public_repos"]
 233
 ```
 
@@ -242,9 +241,7 @@ Please feel free to submit pull requests!
 
 By participating in this project you agree to follow the [Contributor Code of Conduct](https://www.contributor-covenant.org/version/1/4/).
 
-[The list of contributors is available on GitHub](https://github.com/myfreeweb/httpotion/graphs/contributors).
-
 ## License
 
 This is free and unencumbered software released into the public domain.  
-For more information, please refer to the `UNLICENSE` file or [unlicense.org](http://unlicense.org).
+For more information, please refer to the `UNLICENSE` file or [unlicense.org](https://unlicense.org).

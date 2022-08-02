@@ -5,7 +5,7 @@ defmodule HTTPotion.Mixfile do
     if Mix.env == :dial, do: Application.ensure_all_started(:ex_unit)
     [ app: :httpotion,
       name: "httpotion",
-      source_url: "https://github.com/myfreeweb/httpotion",
+      source_url: "https://github.com/unrelentingtech/httpotion",
       version: "3.1.3",
       elixir:  "~> 1.3",
       docs: [ extras: ["README.md", "CODE_OF_CONDUCT.md"] ],
@@ -31,14 +31,14 @@ defmodule HTTPotion.Mixfile do
   defp deps do
     [ {:ibrowse, "== 4.4.0"},
       {:ssl_verify_fun, "~> 1.1"},
-      {:ex_doc, "~> 0.18", only: [:dev, :test, :docs]} ]
+      {:ex_doc, "~> 0.28", only: [:dev, :test, :docs]} ]
   end
 
   defp package do
     [ files: [ "lib", "mix.exs", "README.md", "CODE_OF_CONDUCT.md", "UNLICENSE" ],
-      maintainers: [ "Greg V", "Aleksei Magusev" ],
+      maintainers: [ "unrelentingtech" ],
       licenses: [ "Unlicense" ],
-      links: %{ "GitHub" => "https://github.com/myfreeweb/httpotion" } ]
+      links: %{ "GitHub" => "https://github.com/unrelentingtech/httpotion" } ]
   end
 
   # http://learningelixir.joekain.com/dialyzer-and-integration-tests/
